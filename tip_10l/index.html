@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- 1. Кодировка (всегда на первом месте) -->
+    <meta charset="utf-8">
+    
+    <title>ЖК "Дом на Кузнецова" 2-Евро Тип 10-Л 45м2</title>
+
+    <!-- 2. Иконка вкладки: берется из КОРНЯ репозитория ЖК (две точки выводят на папку вверх) -->
+    <link rel="icon" type="image/png" href="../favicon.png">
+
+    <!-- 3. Теги для соцсетей и мессенджеров -->
+    <meta name="description" content="3D-тур | Бахарев Кирилл" />
+    <meta property="og:description" content="3D-тур | Бахарев Кирилл" />
+    
+    <!-- 4. Картинка-превью: индивидуальная, лежит внутри папки ЭТОГО тура -->
+    <meta property="og:image" content="https://wolf-studio.ru/zhk-na_kuznecova/tip_10l/preview.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- 5. Системные настройки Marzipano -->
+    <meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui" />
+    <style> @-ms-viewport { width: device-width; } </style>
+    <link rel="stylesheet" href="vendor/reset.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+
+<body class="multiple-scenes ">
+
+<div id="pano"></div>
+
+<div id="sceneList">
+  <ul class="scenes">
+    
+      <!--3 - Евро Тип 8-Л 69м2-->
+      <a href="https://wolf-studio.ru/..." class="scene">
+        <li class="text">3 - Евро Тип 8-Л 69м2</li>
+      </a>
+
+      <!--3 - Евро Тип 8-П 72м2-->
+      <a href="https://wolf-studio.ru/..." class="scene">
+        <li class="text">3 - Евро Тип 8-П 72м2</li>
+      </a>
+    
+  </ul>
+</div>
+
+<div id="titleBar">
+  <h1 class="sceneName"></h1>
+</div>
+
+<a href="javascript:void(0)" id="autorotateToggle">
+  <img class="icon off" src="img/play.png">
+  <img class="icon on" src="img/pause.png">
+</a>
+
+<a href="javascript:void(0)" id="fullscreenToggle">
+  <img class="icon off" src="img/fullscreen.png">
+  <img class="icon on" src="img/windowed.png">
+</a>
+
+<a href="javascript:void(0)" id="sceneListToggle">
+  <img class="icon off" src="img/expand.png">
+  <img class="icon on" src="img/collapse.png">
+</a>
+
+<a href="javascript:void(0)" id="viewUp" class="viewControlButton viewControlButton-1">
+  <img class="icon" src="img/up.png">
+</a>
+<a href="javascript:void(0)" id="viewDown" class="viewControlButton viewControlButton-2">
+  <img class="icon" src="img/down.png">
+</a>
+<a href="javascript:void(0)" id="viewLeft" class="viewControlButton viewControlButton-3">
+  <img class="icon" src="img/left.png">
+</a>
+<a href="javascript:void(0)" id="viewRight" class="viewControlButton viewControlButton-4">
+  <img class="icon" src="img/right.png">
+</a>
+<a href="javascript:void(0)" id="viewIn" class="viewControlButton viewControlButton-5">
+  <img class="icon" src="img/plus.png">
+</a>
+<a href="javascript:void(0)" id="viewOut" class="viewControlButton viewControlButton-6">
+  <img class="icon" src="img/minus.png">
+</a>
+
+
+<!-- БЛОК С ССЫЛКОЙ НА САЙТ-->
+<div class="portfolio-brand-block">
+  <img src="img/logo.png" class="portfolio-logo" alt="Логотип Кирилл Бахарев">
+  
+  <div class="portfolio-link-wrapper">
+    Больше работ на <a href="https://wolf-studio.ru/" target="_blank">wolf-studio.ru</a>
+  </div>
+</div>
+
+
+<!-- МИНИ-КАРТА-->
+<!-- Кнопка открытия карты (видны изначально) -->
+<button id="mini-map-toggle-btn" class="map-open-button">План</button>
+
+<!-- Контейнер для мини-карты -->
+<div id="mini-map-wrapper">
+  <!-- Иконка крестика для закрытия карты -->
+  <div id="mini-map-close-btn">&times;</div>
+  
+  <img src="img/plan.png" id="mini-map-img" alt="План квартиры">
+  <div id="mini-map-dot"></div>
+</div>
+
+
+<script src="vendor/screenfull.min.js" ></script>
+<script src="vendor/bowser.min.js" ></script>
+<script src="vendor/marzipano.js" ></script>
+
+<script src="data.js"></script>
+<script src="index.js"></script>
+
+</body>
+</html>
