@@ -72,7 +72,7 @@
 
   // Create scenes.
   var scenes = data.scenes.map(function(data) {
-    var urlPrefix = "https://s3.ru-7.storage.selcloud.ru/wolf-studio-media/zhk-mayakovsky/tip_10l/tiles";
+    var urlPrefix = "https://1303f2d4-ba70-468f-a566-b7d2c029789a.selstorage.ru/zhk-mayakovsky/tip_10l/tiles";
     var source = Marzipano.ImageUrlSource.fromString(
       urlPrefix + "/" + data.id + "/{z}/{f}/{y}/{x}.jpg",
       { cubeMapPreviewUrl: urlPrefix + "/" + data.id + "/preview.jpg" });
