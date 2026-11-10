@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Панель разметки 3D-туров</title>
+    <link href="https://googleapis.com" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0d10;
+            color: #ffffff;
+            padding: 30px;
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 30px;
+            color: #ffffff;
+            border-bottom: 2px solid #1a2026;
+            padding-bottom: 15px;
+        }
+        .container {
+            display: flex;
+            gap: 30px;
+        }
+        .panel {
+            background: #14181d;
+            padding: 25px;
+            border-radius: 12px;
+            width: 380px;
+            height: fit-content;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid #1a2026;
+        }
+        .map-area {
+            background: #14181d;
+            padding: 25px;
+            border-radius: 12px;
+            flex-grow: 1;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid #1a2026;
+            min-height: 500px;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        select, button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+        select {
+            background: #1a2026;
+            color: #ffffff;
+            border: 1px solid #2c353f;
+            cursor: pointer;
+        }
+        select:focus {
+            outline: none;
+            border-color: #ff8562;
+        }
+        button {
+            background-color: #ff8562;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        button:hover {
+            background-color: #e06e4c;
+        }
+        .info-text {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 13px;
+            margin-top: -10px;
+            margin-bottom: 20px;
+            background: #1a2026;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border-left: 3px solid #ff8562;
+        }
+        .scenes-table-container {
+            margin-top: 10px;
+            border-top: 1px solid #1a2026;
+            padding-top: 20px;
+        }
+        .scenes-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .scenes-table th, .scenes-table td {
+            text-align: left;
+            padding: 10px 6px;
+            border-bottom: 1px solid #1a2026;
+        }
+        .scenes-table th {
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+        .scenes-table tr {
+            transition: background 0.2s ease;
+        }
+        .scenes-table tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .badge-changed {
+            background: #4CAF50;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-left: 8px;
+            display: inline-block;
+            letter-spacing: 0.3px;
+        }
+        .status-message {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            text-align: center;
+            display: none;
+            transition: all 0.3s ease;
+        }
+        .status-success {
+            background-color: rgba(76, 175, 80, 0.15);
+            color: #4CAF50;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+        #mapWrapper {
+            position: relative;
+            display: inline-block;
+            border: 2px dashed #1a2026;
+            border-radius: 8px;
+            background: #0b0d10;
+            overflow: auto; /* Важно: включает скролл-бары при увеличении карты */
+            max-width: 100%;
+        }
+        #planMap {
+            width: 800px; /* Изначальный базовый размер */
+            max-width: none; 
+            max-height: none; 
+            display: block;
+            cursor: crosshair;
+            transition: width 0.1s ease; /* Делает изменение размера плавным */
+        }
+        #mapMarker {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: #ff0000;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            pointer-events: none;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
+            transition: left 0.1s ease, top 0.1s ease;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Настройка координат сцен на карте</h1>
+    
+    <div class="container">
+        <!-- Левая панель управления -->
+        <div class="panel">
+            <div id="statusNotification" class="status-message status-success"></div>
+
+            <label for="sceneSelect">1. Выберите сцену:</label>
+            <select id="sceneSelect" onchange="highlightExistingMarker()">
+                <option value="">Загрузка списка сцен...</option>
+            </select>
+
+            <label>2. Поставьте точку на карте справа</label>
+            <div id="coordDisplay" class="info-text">Точка не выбрана</div>
+
+            <button id="saveToServerBtn">Сохранить в data.js</button>
+
+
+            <!-- Регулятор размера карты с новыми границами (100px - 1500px) -->
+            <div style="margin-bottom: 25px; background: #1a2026; padding: 12px; border-radius: 6px;">
+                <label for="mapSizeSlider" style="margin-bottom: 5px; font-size: 12px;">
+                    Размер карты: <span id="sizeValue" style="color: #ff8562; font-weight: bold;">800px</span>
+                </label>
+                <!-- min="100" ставит минимум, max="1500" ставит максимум, value="800" — стартовый размер при открытии -->
+                <input type="range" id="mapSizeSlider" min="100" max="1500" step="50" value="800" style="width: 100%; accent-color: #ff8562; cursor: pointer;">
+            </div>
+
+
+
+
+            <!-- Графа со списком всех координат -->
+            <div class="scenes-table-container">
+                <label>Текущие координаты в data.js:</label>
+                <table class="scenes-table">
+                    <thead>
+                        <tr>
+                            <th>Сцена</th>
+                            <th>Координаты (L / T)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scenesTableBody">
+                        <tr>
+                            <td colspan="2" style="color: rgba(255,255,255,0.3);">Загрузка данных...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- Правая область с картой -->
+        <div class="map-area">
+            <label>Карта планировки:</label>
+            <div id="mapWrapper">
+                <img id="planMap" src="img/plan.jpg" alt="Загрузка изображения..." onerror="tryPngFormat(this)">
+                <div id="mapMarker"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMapCoordinates = null;
+        let localScenesData = [];
+        const changedScenes = new Set();
+
+        function tryPngFormat(img) {
+            if (img.src.endsWith('.png')) {
+                img.alt = "Ошибка: Карта не найдена в папке img/";
+                return;
+            }
+            img.src = "img/plan.png";
+        }
+
+        function loadScenesFromServer() {
+            const select = document.getElementById('sceneSelect');
+            const tableBody = document.getElementById('scenesTableBody');
+            const currentSelectedValue = select.value;
+            
+            fetch('http://localhost:3000/get-scenes')
+                .then(res => {
+                    if (!res.ok) throw new Error('Ошибка сервера');
+                    return res.json();
+                })
+                .then(scenes => {
+                    localScenesData = scenes;
+                    select.innerHTML = '';
+                    if (scenes.length === 0) {
+                        select.innerHTML = '<option value="">Сцены не найдены</option>';
+                        tableBody.innerHTML = '<tr><td colspan="2">Данные пусты</td></tr>';
+                        return;
+                    }
+
+                    tableBody.innerHTML = '';
+
+                    scenes.forEach(scene => {
+                        const option = document.createElement('option');
+                        option.value = scene.id;
+                        option.textContent = `${scene.name} [id: ${scene.id}]`;
+                        if (scene.id === currentSelectedValue) option.selected = true;
+                        select.appendChild(option);
+
+                        const tr = document.createElement('tr');
+                        const tdName = document.createElement('td');
+                        tdName.style.fontWeight = '500';
+                        tdName.textContent = scene.name;
+
+                        if (changedScenes.has(scene.id)) {
+                            const badge = document.createElement('span');
+                            badge.className = 'badge-changed';
+                            badge.textContent = 'Изменено';
+                            tdName.appendChild(badge);
+                        }
+
+                        const tdCoords = document.createElement('td');
+                        if (scene.mapCoords && scene.mapCoords.left && scene.mapCoords.top) {
+                            tdCoords.textContent = `${scene.mapCoords.left} / ${scene.mapCoords.top}`;
+                            tdCoords.style.color = '#ffffff';
+                        } else {
+                            tdCoords.textContent = 'не заданы';
+                            tdCoords.style.color = 'rgba(255,255,255,0.3)';
+                        }
+
+                        tr.appendChild(tdName);
+                        tr.appendChild(tdCoords);
+                        tableBody.appendChild(tr);
+                    });
+
+                    highlightExistingMarker();
+                })
+                .catch(err => {
+                    console.error(err);
+                    select.innerHTML = '<option value="">Ошибка загрузки!</option>';
+                    tableBody.innerHTML = '<tr><td colspan="2" style="color:#ff8562;">Включите node сервер</td></tr>';
+                });
+        }
+        function highlightExistingMarker() {
+            if (currentMapCoordinates) return;
+            
+            const sceneId = document.getElementById('sceneSelect').value;
+            const currentScene = localScenesData.find(s => s.id === sceneId);
+            const marker = document.getElementById('mapMarker');
+
+            if (currentScene && currentScene.mapCoords && currentScene.mapCoords.left && currentScene.mapCoords.top) {
+                marker.style.left = currentScene.mapCoords.left;
+                marker.style.top = currentScene.mapCoords.top;
+                marker.style.display = 'block';
+                marker.style.backgroundColor = '#2196F3'; 
+                document.getElementById('coordDisplay').textContent = `Сохранено: left: ${currentScene.mapCoords.left}, top: ${currentScene.mapCoords.top}`;
+            } else {
+                marker.style.display = 'none';
+                document.getElementById('coordDisplay').textContent = `Точка не выбрана`;
+            }
+        }
+
+        document.getElementById('planMap').addEventListener('click', function(e) {
+            const rect = this.getBoundingClientRect();
+            const leftPercent = ((e.clientX - rect.left) / rect.width * 100).toFixed(2) + '%';
+            const topPercent = ((e.clientY - rect.top) / rect.height * 100).toFixed(2) + '%';
+            
+            currentMapCoordinates = { left: leftPercent, top: topPercent };
+            const marker = document.getElementById('mapMarker');
+            marker.style.left = leftPercent;
+            marker.style.top = topPercent;
+            marker.style.display = 'block';
+            marker.style.backgroundColor = '#ff0000'; 
+
+            document.getElementById('coordDisplay').textContent = `Новый выбор: left: ${leftPercent}, top: ${topPercent}`;
+        });
+
+
+
+
+
+
+
+
+
+        document.getElementById('saveToServerBtn').addEventListener('click', async () => {
+            const sceneId = document.getElementById('sceneSelect').value;
+
+            if (!sceneId || !currentMapCoordinates) return alert('Выберите сцену и поставьте точку!');
+
+            // 1. Находим текущую выбранную сцену в массиве, чтобы узнать её name
+            const currentScene = localScenesData.find(s => s.id === sceneId);
+            if (!currentScene) return alert('Выбранная сцена не найдена в локальных данных!');
+
+            // Базовый список сцен для отправки на сервер
+            const scenesToSave = [sceneId];
+
+            // 2. Формируем целевое имя для поиска пары
+            const currentSceneName = currentScene.name || '';
+            const targetRepairName = (currentSceneName + '_REPAIR').toLowerCase();
+
+            // 3. Ищем парную сцену по её полю NAME (игнорируя регистр букв)
+            const repairScene = localScenesData.find(s => s.name && s.name.toLowerCase() === targetRepairName);
+
+            if (repairScene) {
+                // Если нашли пару по имени, запрашиваем подтверждение
+                const shouldCopy = confirm(`Найдена парная сцена "${repairScene.name}". Установить для нее такие же координаты?`);
+                if (shouldCopy) {
+                    scenesToSave.push(repairScene.id); // Добавляем ID найденной ремонтной сцены
+                }
+            } else {
+                // ТЕСТОВОЕ УВЕДОМЛЕНИЕ: Вызовется, только если в проекте реально нет пары с _REPAIR
+                alert(`Пары с приставкой _REPAIR для сцены "${currentSceneName}" не найдено в файле data.js`);
+            }
+
+            try {
+                // 4. Последовательно отправляем запросы на сервер для всех ID из списка
+                for (const id of scenesToSave) {
+                    const res = await fetch('http://localhost:3000/save', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ sceneId: id, coordinates: currentMapCoordinates })
+                    });
+
+                    if (!res.ok) throw new Error(`Ошибка сервера при сохранении сцены с id ${id}`);
+                    
+                    changedScenes.add(id);
+                }
+
+                // 5. Очищаем временную точку и обновляем интерфейс
+                const savedPairName = repairScene ? repairScene.name : null;
+                currentMapCoordinates = null; 
+                loadScenesFromServer();
+
+                // Показываем плавающее уведомление об успешном завершении
+                const notify = document.getElementById('statusNotification');
+                notify.textContent = scenesToSave.length > 1 
+                    ? `Сохранено для "${currentSceneName}" и "${savedPairName}"` 
+                    : `Сохранено для "${currentSceneName}"`;
+                notify.style.display = 'block';
+                setTimeout(() => { notify.style.display = 'none'; }, 3000);
+
+            } catch (err) {
+                console.error(err);
+                alert('Ошибка сохранения. Проверьте терминал Node.js');
+            }
+        });
+
+
+
+
+
+
+
+
+
+
+
+        document.addEventListener('DOMContentLoaded', loadScenesFromServer);
+
+
+        // Логика динамического изменения размера карты ползунком
+        const sizeSlider = document.getElementById('mapSizeSlider');
+        const sizeValueText = document.getElementById('sizeValue');
+        const mapImage = document.getElementById('planMap');
+
+        sizeSlider.addEventListener('input', function() {
+            const currentSize = this.value + 'px';
+            
+            // 1. Меняем текст с пикселями в интерфейсе
+            sizeValueText.textContent = currentSize;
+            
+            // 2. Меняем реальную ширину картинки карты
+            mapImage.style.width = currentSize;
+        });
+
+
+
+    </script>
+</body>
+</html>

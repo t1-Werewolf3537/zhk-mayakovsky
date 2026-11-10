@@ -1,0 +1,291 @@
+<div id="editorPanel" style="position:fixed;top:1px;left:50px;z-index:999999;font-family:sans-serif;">
+    <button id="toggleEditorBtn" style="background:#ff8562;color:white;border:none;padding:10px 15px;border-radius:6px;font-weight:bold;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,0.3);font-size:13px;">🛠️ Режим редактора</button>
+    <div id="editorControls" style="display:none;background:#14181d;color:white;padding:20px;border-radius:8px;margin-top:10px;width:340px;box-shadow:0 10px 25px rgba(0,0,0,0.5);border:1px solid #1a2026;max-height:85vh;overflow-y:auto;">
+        <p style="font-size:11px;color:#ff8562;margin-bottom:2px;text-transform:uppercase;font-weight:bold;">Текущая сцена:</p>
+        <div id="editorCurrentSceneDisplay" style="font-size:14px;font-weight:bold;margin-bottom:15px;color:#fff;">Определение...</div>
+        <p style="font-size:11px;color:#888;margin-bottom:5px;text-transform:uppercase;font-weight:bold;">Добавить новый переход</p>
+        <label style="display:block;margin-bottom:5px;font-size:12px;color:#ccc;">Куда вести переход (Цель):</label>
+        <select id="editorTargetSelect" style="width:100%;padding:8px;background:#1a2026;color:white;border:1px solid #2c353f;border-radius:4px;margin-bottom:12px;cursor:pointer;"><option value="">Загрузка...</option></select>
+        <div id="editorCoordsDisplay" style="font-size:12px;background:#1a2026;padding:8px;border-radius:4px;border-left:3px solid #ff8562;margin-bottom:15px;color:#ccc;">yaw: 0.0000, pitch: 0.0000</div>
+        <button id="editorSaveBtn" style="width:100%;padding:10px;background:#4CAF50;color:white;border:none;border-radius:4px;font-weight:bold;cursor:pointer;text-transform:uppercase;font-size:12px;">💾 Сохранить хотспот</button>
+        <div id="editorStatus" style="font-size:12px;text-align:center;margin-top:10px;font-weight:bold;display:none;"></div>
+        <div style="margin-top:20px;border-top:1px solid #2c353f;padding-top:15px;">
+            <p style="font-size:11px;color:#888;margin-bottom:8px;text-transform:uppercase;font-weight:bold;">Хотспоты этой сцены в data.js:</p>
+            <table style="width:100%;border-collapse:collapse;font-size:11px;color:#eee;">
+                <thead><tr style="border-bottom:1px solid #2c353f;color:#888;text-align:left;"><th style="padding:4px 0;">Куда (Target)</th><th style="padding:4px 0;">Координаты</th><th style="padding:4px 0;text-align:right;">Действие</th></tr></thead>
+                <tbody id="editorHotspotsTableBody"><tr><td colspan="3" style="color:#666;padding:10px 0;text-align:center;">Нет данных</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div id="editorReticle" style="position:fixed;top:50%;left:50%;width:20px;height:20px;transform:translate(-50%,-50%);pointer-events:none;z-index:999998;display:none;">
+    <div style="position:absolute;top:9px;left:0;width:20px;height:2px;background:#ff8562;"></div>
+    <div style="position:absolute;top:0;left:9px;width:2px;height:20px;background:#ff8562;"></div>
+</div>
+
+<!-- Сюда Marzipano будет выводить наши временные маркеры редактора -->
+<div id="editorTemporaryMarkersContainer" style="position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:999990;"></div>
+
+<script>
+(function(){
+    const toggleBtn=document.getElementById('toggleEditorBtn'), controls=document.getElementById('editorControls'), reticle=document.getElementById('editorReticle'), targetSelect=document.getElementById('editorTargetSelect'), coordsDisplay=document.getElementById('editorCoordsDisplay'), saveBtn=document.getElementById('editorSaveBtn'), statusMsg=document.getElementById('editorStatus'), sceneDisplay=document.getElementById('editorCurrentSceneDisplay'), tableBody=document.getElementById('editorHotspotsTableBody'), tempMarkersContainer=document.getElementById('editorTemporaryMarkersContainer');
+    let editorActive=false, fallbackSceneId="4_hallway", lastRenderedSceneId="";
+
+    function detectIdByMapDotPosition() {
+        const v = window.customMarzipanoViewer || window.viewer;
+        
+        // ШАГ 1: Самый надежный и универсальный способ — берем ID активной сцены напрямую из плеера Marzipano
+        if (v && typeof v.scene === 'function' && v.scene() && v.scene().data && v.scene().data.id) {
+            return v.scene().data.id;
+        }
+        
+        // ШАГ 2: Если плеер еще инициализируется, сверяем положение точки мини-карты с базой data.js
+        const mapDot = document.getElementById('mini-map-dot');
+        if (mapDot && mapDot.style.left && mapDot.style.left !== "" && mapDot.style.left !== "0px" && mapDot.style.left !== "0%") {
+            const currentLeft = mapDot.style.left;
+            const currentTop = mapDot.style.top;
+            
+            if (typeof APP_DATA !== 'undefined' && APP_DATA.scenes) {
+                for (let i = 0; i < APP_DATA.scenes.length; i++) {
+                    const sc = APP_DATA.scenes[i];
+                    if (sc.mapCoords && sc.mapCoords.left === currentLeft && sc.mapCoords.top === currentTop) {
+                        return sc.id;
+                    }
+                }
+            }
+        }
+        
+        // ШАГ 3: Если это самый первый старт и карта еще не двигалась — берем ID первой сцены из data.js
+        if (typeof APP_DATA !== 'undefined' && APP_DATA.scenes && APP_DATA.scenes[0] && APP_DATA.scenes[0].id) {
+            return APP_DATA.scenes[0].id; // Автоматически подхватит стартовую сцену любого вашего проекта
+        }
+        
+        return fallbackSceneId;
+    }
+
+
+    window.updateEditorSceneContext = function(forceUpdate = false) {
+        const v = window.customMarzipanoViewer || window.viewer; 
+        if (!v) { sceneDisplay.textContent = "Поиск плеера..."; return false; }
+        
+        const cid = detectIdByMapDotPosition(); 
+        fallbackSceneId = cid; 
+        
+        if (forceUpdate) lastRenderedSceneId = "";
+        if (lastRenderedSceneId === cid && sceneDisplay.textContent !== "Определение..." && sceneDisplay.textContent !== "Поиск плеера...") {
+            return true;
+        }
+        
+        fetch('/get-scene-data?sceneId=' + encodeURIComponent(cid)).then(r => r.json()).then(data => {
+            lastRenderedSceneId = cid; 
+            sceneDisplay.textContent = data.name + ' [id: ' + data.id + ']'; 
+            tableBody.innerHTML = '';
+            if (!data.hotspots || data.hotspots.length === 0) { 
+                tableBody.innerHTML = '<tr><td colspan="3" style="color:#666;padding:8px 0;text-align:center;">Хотспоты отсутствуют</td></tr>'; 
+            } else { 
+                data.hotspots.forEach((hp, index) => { 
+                    const tr = document.createElement('tr');
+                    tr.style.borderBottom='1px solid #1a2026';
+                    
+                    const tdT = document.createElement('td');
+                    tdT.style.padding='6px 0';
+                    tdT.style.fontWeight='600';
+                    tdT.textContent = hp.targetName + ' [id: ' + hp.targetId + ']';
+                    
+                    const tdC = document.createElement('td');
+                    tdC.style.padding='6px 0';
+                    tdC.style.color='#888';
+                    tdC.textContent = 'Y: ' + parseFloat(hp.yaw).toFixed(2) + ' / P: ' + parseFloat(hp.pitch).toFixed(2);
+                    
+                    const tdDel = document.createElement('td');
+                    tdDel.style.padding='6px 0';
+                    tdDel.style.textAlign='right';
+                    
+                    const delBtn = document.createElement('button');
+                    delBtn.textContent = 'Удалить';
+                    delBtn.style.cssText = 'background:#f44336;color:white;border:none;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:bold;cursor:pointer;width:auto;margin:0;';
+                    delBtn.addEventListener('click', () => deleteHotspotElement(data.id, index));
+                    
+                    tdDel.appendChild(delBtn);
+                    tr.appendChild(tdT);
+                    tr.appendChild(tdC);
+                    tr.appendChild(tdDel);
+                    tableBody.appendChild(tr); 
+                }); 
+            }
+        }).catch(err => { sceneDisplay.textContent = 'Ошибка [id: ' + cid + ']'; }); 
+        return true;
+    };
+
+    // Обновленная функция удаления с предварительной подсветкой хотспота
+    function deleteHotspotElement(sceneId, index) {
+        const v = window.customMarzipanoViewer || window.viewer;
+        if (!v) return alert('Плеер недоступен');
+
+        let targetText = "Переход";
+        let targetYaw = 0;
+        let targetPitch = 0;
+
+        // 1. Вытаскиваем координаты хотспота из памяти для его предварительной подсветки
+        if (typeof APP_DATA !== 'undefined' && APP_DATA.scenes) {
+            const matchedScene = APP_DATA.scenes.find(s => s.id === sceneId);
+            if (matchedScene && matchedScene.linkHotspots && matchedScene.linkHotspots[index]) {
+                const hp = matchedScene.linkHotspots[index];
+                targetYaw = hp.yaw;
+                targetPitch = hp.pitch;
+                
+                const ts = APP_DATA.scenes.find(s => s.id === hp.target);
+                targetText = ts ? (ts.name || hp.target) : hp.target;
+            }
+        }
+
+        // 2. МГНОВЕННО СТАВИМ ЖЕЛТЫЙ МАРКЕР ПОДСВЕТКИ на панораму
+        const warningMarkerEl = document.createElement('div');
+        warningMarkerEl.style.cssText = 'background: #ffc107; color: #000; padding: 5px 10px; border-radius: 4px; font-family: sans-serif; font-size: 12px; font-weight: bold; white-space: nowrap; pointer-events: none; border: 2px solid #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.6); z-index: 999995; animation: pulse 0.5s infinite alternate;';
+        warningMarkerEl.textContent = '⚠️ УДАЛИТЬ ' + targetText + '?';
+        
+        // Внедряем CSS-анимацию пульсации прямо в элемент, чтобы он моргал и привлекал внимание
+        const styleSheet = document.createElement("style");
+        styleSheet.innerText = "@keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }";
+        document.head.appendChild(styleSheet);
+
+        const tempWarningHotspot = v.scene().hotspotContainer().createHotspot(warningMarkerEl, { yaw: targetYaw, pitch: targetPitch });
+
+        // Поворачиваем камеру тура плавно в сторону проверяемого хотспота, чтобы вы его точно увидели
+        if (v.view() && typeof v.view().setYaw === 'function') {
+            v.view().setYaw(targetYaw);
+            v.view().setPitch(targetPitch);
+        }
+
+        // 3. ЗАПРАШИВАЕМ ПОДТВЕРЖДЕНИЕ У ПОЛЬЗОВАТЕЛЯ
+        setTimeout(() => {
+            if (!confirm('Удаляем этот хотспот на "' + targetText + '"?')) {
+                // Если ОТМЕНА — просто удаляем желтый маркер с панорамы и ничего не меняем
+                v.scene().hotspotContainer().destroyHotspot(tempWarningHotspot);
+                return;
+            }
+
+            // Если ОК — удаляем маркер подсветки и запускаем процедуру удаления на сервере
+            v.scene().hotspotContainer().destroyHotspot(tempWarningHotspot);
+
+            fetch('/delete-hotspot', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sceneId, index })
+            })
+            .then(res => res.text())
+            .then(() => {
+                // Вырезаем из локальной памяти
+                if (typeof APP_DATA !== 'undefined' && APP_DATA.scenes) {
+                    const matchedScene = APP_DATA.scenes.find(s => s.id === sceneId);
+                    if (matchedScene && matchedScene.linkHotspots) {
+                        matchedScene.linkHotspots.splice(index, 1);
+                    }
+                }
+
+                statusMsg.textContent = "✕ Удалено!";
+                statusMsg.style.color = "#ff3333";
+                statusMsg.style.display = "block";
+                setTimeout(() => { statusMsg.style.display = "none"; }, 2500);
+
+                // СТАВИМ СТАТИЧНЫЙ КРАСНЫЙ МАРКЕР ПОДТВЕРЖДЕНИЯ УДАЛЕНИЯ
+                createDeletedMarkerInViewer(v, targetYaw, targetPitch, targetText);
+
+                // Обновляем таблицу хотспотов в шторке
+                window.updateEditorSceneContext(true);
+            })
+            .catch(err => console.error("Ошибка при удалении:", err));
+        }, 50); // Микропауза, чтобы маркер успел отрисоваться на сфере до вызова системного окна confirm
+    }
+
+    // Функция создания временного HTML-маркера удаления внутри плеера Marzipano
+    function createDeletedMarkerInViewer(viewerInstance, yaw, pitch, labelText) {
+        if (!viewerInstance || !viewerInstance.scene()) return;
+
+        const markerEl = document.createElement('div');
+        markerEl.style.cssText = 'background: rgba(244, 67, 54, 0.85); color: white; padding: 4px 8px; border-radius: 4px; font-family: sans-serif; font-size: 11px; font-weight: bold; white-space: nowrap; pointer-events: none; border: 2px solid #ff8888; box-shadow: 0 2px 8px rgba(0,0,0,0.5); text-decoration: line-through; text-decoration-color: #fff;';
+        markerEl.textContent = '❌ ' + labelText;
+
+        viewerInstance.scene().hotspotContainer().createHotspot(markerEl, { yaw: yaw, pitch: pitch });
+    }
+
+    document.addEventListener('click', function(e) {
+        if (!editorActive) return;
+        const target = e.target.closest('.hotspot') || e.target.closest('.map-nav-point');
+        if (target) {
+            setTimeout(() => { window.updateEditorSceneContext(true); }, 400);
+        }
+    });
+
+    toggleBtn.addEventListener('click', () => {
+        editorActive = !editorActive; 
+        controls.style.display = editorActive ? 'block' : 'none'; 
+        reticle.style.display = editorActive ? 'block' : 'none';
+        if (editorActive) { 
+            fetch('/get-all-scenes-list').then(r => r.json()).then(scenes => { 
+                targetSelect.innerHTML = ''; 
+                scenes.forEach(s => { 
+                    const o = document.createElement('option');
+                    o.value = s.id;
+                    o.textContent = s.name + ' [id: ' + s.id + ']';
+                    targetSelect.appendChild(o); 
+                }); 
+                sceneDisplay.textContent = "Определение..."; 
+                window.updateEditorSceneContext(true); 
+            }); 
+        }
+    });
+
+    setInterval(() => {
+        if (!editorActive) return; 
+        const v = window.customMarzipanoViewer || window.viewer; 
+        window.updateEditorSceneContext();
+        if (v && typeof v.view === 'function' && v.view()) { 
+            coordsDisplay.textContent = 'yaw: ' + v.view().yaw().toFixed(4) + ', pitch: ' + v.view().pitch().toFixed(4); 
+        }
+    }, 250);
+
+    function createTempMarkerInViewer(viewerInstance, yaw, pitch, labelText) {
+        if (!viewerInstance || !viewerInstance.scene()) return;
+
+        const markerEl = document.createElement('div');
+        markerEl.style.cssText = 'background: #4CAF50; color: white; padding: 4px 8px; border-radius: 4px; font-family: sans-serif; font-size: 11px; font-weight: bold; white-space: nowrap; pointer-events: none; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.5);';
+        markerEl.textContent = '🆕 ' + labelText;
+
+        viewerInstance.scene().hotspotContainer().createHotspot(markerEl, { yaw: yaw, pitch: pitch });
+    }
+
+    saveBtn.addEventListener('click', () => {
+        const v = window.customMarzipanoViewer || window.viewer; 
+        if (!v) return alert('Плеер недоступен');
+
+        const sourceSceneId = fallbackSceneId;
+        const targetSceneId = targetSelect.value;
+        const targetText = targetSelect.options[targetSelect.selectedIndex].text.split(' [id:');
+        const yaw = v.view().yaw();
+        const pitch = v.view().pitch();
+
+        fetch('/save-hotspot', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sourceSceneId, targetSceneId, yaw, pitch })
+        }).then(r => r.text()).then(() => { 
+            statusMsg.textContent = "✓ Сохранено в data.js!";
+            statusMsg.style.color = "#4CAF50";
+            statusMsg.style.display = "block";
+            setTimeout(() => { statusMsg.style.display = "none"; }, 2500); 
+
+            if (typeof APP_DATA !== 'undefined' && APP_DATA.scenes) {
+                const currentMemoryScene = APP_DATA.scenes.find(s => s.id === sourceSceneId);
+                if (currentMemoryScene) {
+                    if (!currentMemoryScene.linkHotspots) currentMemoryScene.linkHotspots = [];
+                    currentMemoryScene.linkHotspots.push({ yaw: yaw, pitch: pitch, rotation: 0, target: targetSceneId });
+                }
+            }
+
+            createTempMarkerInViewer(v, yaw, pitch, targetText);
+            window.updateEditorSceneContext(true); 
+        });
+    });
+})();
+</script>
