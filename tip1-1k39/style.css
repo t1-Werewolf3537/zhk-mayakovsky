@@ -1442,8 +1442,8 @@ body #sceneListToggle.enabled ~ .ios-switch-wrapper,
     scale: 1.4 !important; 
     
     /* Сдвинули чуть ниже и правее, чтобы кнопка не прижималась вплотную к краям */
-    top: 55px !important;  /* Отступ сверху  */
-    left: 5px !important;  /* Отступ слева */
+    top: 65px !important;  /* Отступ сверху  */
+    left: 3px !important;  /* Отступ слева */
     padding: 0 !important;
   }
 
