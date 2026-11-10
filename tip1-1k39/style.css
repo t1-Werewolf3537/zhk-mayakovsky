@@ -1401,7 +1401,11 @@ body #sceneListToggle.enabled ~ .ios-switch-wrapper,
   left: 0 !important;
   right: 0 !important;
   bottom: 0 !important;
-  background-color: #3a4454 !important; 
+  background-color: rgba(58, 68, 84, 0.65) !important;  /* Цвет ВЫКЛ тумблера */ 
+
+  /* ДОБАВЛЕНО: Тонкий белый контур с прозрачностью для аккуратного вида */
+  border: 2px solid rgba(255, 255, 255, 1) !important;
+
   transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   border-radius: 24px !important;
 }
@@ -1412,9 +1416,9 @@ body #sceneListToggle.enabled ~ .ios-switch-wrapper,
   content: "" !important;
   height: 20px !important;
   width: 20px !important;
-  left: 2px !important;
-  bottom: 2px !important;
-  background-color: white !important;
+  left: 1px !important;
+  bottom: 1px !important;
+  background-color: rgba(255, 255, 255, 1) !important;  /* Цвет Пипки */
   transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   border-radius: 50% !important;
   box-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
@@ -1422,7 +1426,7 @@ body #sceneListToggle.enabled ~ .ios-switch-wrapper,
 
 /* Состояние: Включено (Твой фирменный кораллово-оранжевый цвет) */
 .ios-switch input:checked + .ios-switch-slider {
-  background-color: #ff8562 !important;
+  background-color: rgba(255, 133, 98, 1) !important;  /* Цвет ВКЛ тумблера */
 }
 
 /* Смещение пипки вправо при активации */
@@ -1456,12 +1460,12 @@ body #sceneListToggle.enabled ~ .ios-switch-wrapper,
   .mobile .ios-switch-slider:before {
     height: 16px !important;
     width: 16px !important;
-    left: 2px !important;
-    bottom: 2px !important;
+    left: 1px !important;
+    bottom: 1px !important;
   }
 
   .mobile .ios-switch input:checked + .ios-switch-slider:before {
-    transform: translateX(16px) !important;
+    transform: translateX(15px) !important;
   }
 
   /* 2. Лечим заезд кастомного меню на верхнюю панель на 6 пикселей */
