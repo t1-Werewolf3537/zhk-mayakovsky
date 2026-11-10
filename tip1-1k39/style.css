@@ -1438,12 +1438,12 @@ body #sceneListToggle.enabled ~ .ios-switch-wrapper,
   /* 1. Увеличиваем тумблер на смартфонах (в 4 раза крупнее, чем было) */
   .mobile .ios-switch-wrapper,
   #pano ~ .ios-switch-wrapper {
-    /* Выставили жесткий крупный масштаб 1.6 вместо старого var */
-    scale: 1.6 !important; 
+    /* Выставили жесткий крупный масштаб 1.4 вместо старого var */
+    scale: 1.4 !important; 
     
     /* Сдвинули чуть ниже и правее, чтобы кнопка не прижималась вплотную к краям */
-    top: 72px !important;
-    left: 12px !important;
+    top: 55px !important;  /* Отступ сверху  */
+    left: 5px !important;  /* Отступ слева */
     padding: 0 !important;
   }
 
