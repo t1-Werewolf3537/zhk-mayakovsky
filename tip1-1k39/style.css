@@ -1347,26 +1347,30 @@ body.fullscreen-enabled .custom-dynamic-image-container {
 
 
 /* ==========================================================================
-   СТИЛЬ ДЛЯ IOS-ТУМБЛЕРА ПЕРЕКЛЮЧЕНИЯ ОТДЕЛКИ (СИММЕТРИЧНО ПРАВОЙ ПАНЕЛИ)
+   НАСТРОЙКИ МАСШТАБА ТЕКСТА ПОД ТУМБЛЕРОМ (МЕНЯТЬ ТУТ)
+   ========================================================================== */
+:root {
+  --switch-text-scale-pc: 1.5;      /* Масштаб текста на ПК (1.0 = 100%) */
+  --switch-text-scale-mobile: 0.85; /* Масштаб текста на телефонах */
+}
+
+/* ==========================================================================
+   СТИЛЬ ДЛЯ IOS-ТУМБЛЕРА ПЕРЕКЛЮЧЕНИЯ ОТДЕЛКИ И ТЕКСТА ПОД НИМ
    ========================================================================== */
 .ios-switch-wrapper {
   display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+  flex-direction: column !important;    /* Выстраиваем тумблер и текст вертикально */
+  align-items: flex-start !important;   /* Выравниваем строго по левому краю тумблера */
+  gap: 5px !important;                  /* Ровно 5px отступа от тумблера до текста */
   position: absolute !important;
-  
-  /* Уровень строго под шапкой, на одной линии с текстом ЖК справа */
   top: 48px !important; 
-  left: 0 !important;
-  
-  /* Важно: тумблер на слое 5, а кастомное меню встанет на слой выше */
+  left: 6px !important;
   z-index: 5 !important; 
-  
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
   padding: 0 !important;
-  pointer-events: auto !important;
+  pointer-events: none !important;
   transform-origin: left top !important;
   scale: var(--dynamic-image-scale-pc) !important;
 }
@@ -1374,26 +1378,26 @@ body.fullscreen-enabled .custom-dynamic-image-container {
 body.multiple-scenes #ios-switch-wrapper-id,
 body #sceneListToggle.enabled ~ .ios-switch-wrapper,
 .ios-switch-wrapper {
-  left: 0px !important; 
+  left: 6px !important; 
 }
 
-/* Контейнер самого переключателя */
+/* Контейнер самого переключателя (КЛИКАБЕЛЕН ТОЛЬКО ОН) */
 .ios-switch {
   position: relative !important;
   display: inline-block !important;
+  flex-shrink: 0 !important;
   width: 42px !important;
   height: 24px !important;
   cursor: pointer !important;
+  pointer-events: auto !important;
 }
 
-/* Прячем дефолтный чекбокс */
 .ios-switch input {
   opacity: 0 !important;
   width: 0 !important;
   height: 0 !important;
 }
 
-/* Фон тумблера (основа) */
 .ios-switch-slider {
   position: absolute !important;
   cursor: pointer !important;
@@ -1401,16 +1405,12 @@ body #sceneListToggle.enabled ~ .ios-switch-wrapper,
   left: 0 !important;
   right: 0 !important;
   bottom: 0 !important;
-  background-color: rgba(58, 68, 84, 0.65) !important;  /* Цвет ВЫКЛ тумблера */ 
-
-  /* ДОБАВЛЕНО: Тонкий белый контур с прозрачностью для аккуратного вида */
+  background-color: rgba(58, 68, 84, 0.65) !important;
   border: 2px solid rgba(255, 255, 255, 1) !important;
-
   transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   border-radius: 24px !important;
 }
 
-/* Круглая пипка переключателя */
 .ios-switch-slider:before {
   position: absolute !important;
   content: "" !important;
@@ -1418,40 +1418,89 @@ body #sceneListToggle.enabled ~ .ios-switch-wrapper,
   width: 20px !important;
   left: 1px !important;
   bottom: 1px !important;
-  background-color: rgba(255, 255, 255, 1) !important;  /* Цвет Пипки */
+  background-color: rgba(255, 255, 255, 1) !important;
   transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   border-radius: 50% !important;
   box-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
 }
 
-/* Состояние: Включено (Твой фирменный кораллово-оранжевый цвет) */
 .ios-switch input:checked + .ios-switch-slider {
-  background-color: rgba(255, 133, 98, 1) !important;  /* Цвет ВКЛ тумблера */
+  background-color: rgba(255, 133, 98, 1) !important;
 }
 
-/* Смещение пипки вправо при активации */
 .ios-switch input:checked + .ios-switch-slider:before {
   transform: translateX(18px) !important;
 }
 
 /* --------------------------------------------------------------------------
-   ОПТИМИЗАЦИЯ ПОД МОБИЛЬНЫЕ УСТРОЙСТВА (НОВЫЙ КРУПНЫЙ ТУМБЛЕР И СДВИГ МЕНЮ)
+   ПРОЗРАЧНЫЙ ТЕКСТ ПОД ТУМБЛЕРОМ: СТРЕЛКА ПО ЦЕНТРУ, ТЕКСТ НИЖЕ
+   -------------------------------------------------------------------------- */
+.ios-switch-label-box {
+  display: flex !important;
+  flex-direction: column !important;    /* Стрелка сверху, текст строкой ниже */
+  align-items: flex-start !important;   /* Выравнивание по левому краю */
+  gap: 3px !important;                  /* Вертикальный отступ от стрелки до текста */
+  
+  /* Сдвигаем блок вправо, чтобы центр стрелки совпал с центром тумблера:
+     Ширина тумблера (42px) / 2 - ширина стрелки (16px) / 2 = 13px */
+  margin-left: 13px !important; 
+  
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  
+  color: #ffffff !important;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+  
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85) !important;
+  
+  pointer-events: none !important;
+  cursor: default !important;
+  
+  /* Масштабируем от центра стрелки, чтобы при изменении scale она не уезжала вбок */
+  transform-origin: 8px top !important;
+  scale: var(--switch-text-scale-pc) !important;
+  
+  opacity: 1 !important;
+  visibility: visible !important;
+  transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out !important;
+}
+
+/* Сама жирная стрелка вверх */
+.hint-arrow-icon {
+  width: 16px !important;
+  height: 16px !important;
+  flex-shrink: 0 !important;
+  color: #ffffff !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.85)) !important;
+}
+
+/* Состояние после первого включения тумблера: растворяется навсегда */
+.ios-switch-label-box.is-dismissed {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* --------------------------------------------------------------------------
+   ОПТИМИЗАЦИЯ ПОД МОБИЛЬНЫЕ УСТРОЙСТВА
    -------------------------------------------------------------------------- */
 @media (max-width: 768px) or (.mobile) {
   
-  /* 1. Увеличиваем тумблер на смартфонах (в 4 раза крупнее, чем было) */
   .mobile .ios-switch-wrapper,
   #pano ~ .ios-switch-wrapper {
-    /* Выставили жесткий крупный масштаб 1.4 вместо старого var */
     scale: 1.4 !important; 
-    
-    /* Сдвинули чуть ниже и правее, чтобы кнопка не прижималась вплотную к краям */
-    top: 65px !important;  /* Отступ сверху  */
-    left: 3px !important;  /* Отступ слева */
+    top: 65px !important;
+    left: 6px !important;
+    gap: 5px !important; /* Сохраняем ровно 5px под тумблером и на телефонах */
     padding: 0 !important;
   }
 
-  /* Сохраняем пропорции внутренних элементов тумблера для мобильной версии */
   .mobile .ios-switch {
     width: 36px !important;
     height: 20px !important;
@@ -1468,11 +1517,16 @@ body #sceneListToggle.enabled ~ .ios-switch-wrapper,
     transform: translateX(15px) !important;
   }
 
-  /* 2. Лечим заезд кастомного меню на верхнюю панель на 6 пикселей */
+  .mobile .ios-switch-label-box,
+  #pano ~ .ios-switch-wrapper .ios-switch-label-box {
+    scale: var(--switch-text-scale-mobile) !important;
+    font-size: 12px !important;
+    margin-left: 10px !important; /* Точный центр для мобильного тумблера (36px / 2 - 8px) */
+  }
+
+
   #sceneList,
   .mobile #sceneList {
-    /* Высота #titleBar на мобильных равна 50px. 
-       Опускаем шторку, чтобы она начиналась строго ПОД верхней плашкой */
     padding-top: 50px !important; 
   }
 }

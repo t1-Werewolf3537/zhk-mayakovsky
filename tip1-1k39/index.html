@@ -132,13 +132,43 @@
 </div>
 
 
-<!-- Чистый iOS-переключатель Варианта отделки (Слева, симметрично тексту ЖК) -->
+
+
+<!-- Чистый iOS-переключатель Варианта отделки с текстовой подсказкой снизу -->
 <div class="ios-switch-wrapper">
   <label class="ios-switch">
     <input type="checkbox" id="finish-variant-toggle-btn">
     <span class="ios-switch-slider"></span>
   </label>
+  <div id="finish-variant-hint" class="ios-switch-label-box">
+    <svg class="hint-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="12" y1="19" x2="12" y2="5"></line>
+      <polyline points="5 12 12 5 19 12"></polyline>
+    </svg>
+    <span>Посмотрите проект с ремонтом</span>
+  </div>
 </div>
+
+
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var toggleBtn = document.getElementById('finish-variant-toggle-btn');
+    var hintBox = document.getElementById('finish-variant-hint');
+
+    if (toggleBtn && hintBox) {
+      toggleBtn.addEventListener('change', function() {
+        // Как только тумблер включили — вешаем класс исчезновения навсегда
+        if (this.checked) {
+          hintBox.classList.add('is-dismissed');
+        }
+      });
+    }
+  });
+</script>
+
+
 
 
 
