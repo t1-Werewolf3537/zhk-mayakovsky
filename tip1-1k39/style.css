@@ -1425,7 +1425,7 @@ body #sceneListToggle.enabled ~ .ios-switch-wrapper,
 }
 
 .ios-switch input:checked + .ios-switch-slider {
-  background-color: rgba(255, 133, 98, 1) !important;
+  background-color: rgba(52, 199, 89, 1) !important;  /* Цвет ВКЛ тумблера */
 }
 
 .ios-switch input:checked + .ios-switch-slider:before {
