@@ -1437,12 +1437,9 @@ body #sceneListToggle.enabled ~ .ios-switch-wrapper,
    -------------------------------------------------------------------------- */
 .ios-switch-label-box {
   display: flex !important;
-  flex-direction: column !important;    /* Стрелка сверху, текст строкой ниже */
-  align-items: flex-start !important;   /* Выравнивание по левому краю */
-  gap: 3px !important;                  /* Вертикальный отступ от стрелки до текста */
-  
-  /* Сдвигаем блок вправо, чтобы центр стрелки совпал с центром тумблера:
-     Ширина тумблера (42px) / 2 - ширина стрелки (16px) / 2 = 13px */
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 3px !important;
   margin-left: 13px !important; 
   
   background: transparent !important;
@@ -1457,18 +1454,30 @@ body #sceneListToggle.enabled ~ .ios-switch-wrapper,
   font-weight: 500 !important;
   line-height: 1.2 !important;
   white-space: nowrap !important;
-  
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85) !important;
   
   pointer-events: none !important;
   cursor: default !important;
   
-  /* Масштабируем от центра стрелки, чтобы при изменении scale она не уезжала вбок */
   transform-origin: 8px top !important;
   scale: var(--switch-text-scale-pc) !important;
   
+  /* Изначально скрыто до истечения 6 секунд */
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transition: opacity 0.8s ease-in-out, visibility 0.8s ease-in-out !important;
+}
+
+/* Класс плавного появления спустя 6 секунд */
+.ios-switch-label-box.is-visible {
   opacity: 1 !important;
   visibility: visible !important;
+}
+
+/* Состояние после первого включения тумблера: растворяется навсегда */
+.ios-switch-label-box.is-dismissed {
+  opacity: 0 !important;
+  visibility: hidden !important;
   transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out !important;
 }
 
@@ -1481,12 +1490,6 @@ body #sceneListToggle.enabled ~ .ios-switch-wrapper,
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.85)) !important;
 }
 
-/* Состояние после первого включения тумблера: растворяется навсегда */
-.ios-switch-label-box.is-dismissed {
-  opacity: 0 !important;
-  visibility: hidden !important;
-}
-
 /* --------------------------------------------------------------------------
    ОПТИМИЗАЦИЯ ПОД МОБИЛЬНЫЕ УСТРОЙСТВА
    -------------------------------------------------------------------------- */
@@ -1497,7 +1500,7 @@ body #sceneListToggle.enabled ~ .ios-switch-wrapper,
     scale: 1.4 !important; 
     top: 65px !important;
     left: 6px !important;
-    gap: 5px !important; /* Сохраняем ровно 5px под тумблером и на телефонах */
+    gap: 5px !important;
     padding: 0 !important;
   }
 
@@ -1506,11 +1509,12 @@ body #sceneListToggle.enabled ~ .ios-switch-wrapper,
     height: 20px !important;
   }
 
+  /* ИСПРАВЛЕНО: опустили белый шарик на 1px ниже (bottom: 0px), теперь ровно по центру */
   .mobile .ios-switch-slider:before {
     height: 16px !important;
     width: 16px !important;
     left: 1px !important;
-    bottom: 1px !important;
+    bottom: 0px !important;
   }
 
   .mobile .ios-switch input:checked + .ios-switch-slider:before {
@@ -1521,9 +1525,8 @@ body #sceneListToggle.enabled ~ .ios-switch-wrapper,
   #pano ~ .ios-switch-wrapper .ios-switch-label-box {
     scale: var(--switch-text-scale-mobile) !important;
     font-size: 12px !important;
-    margin-left: 10px !important; /* Точный центр для мобильного тумблера (36px / 2 - 8px) */
+    margin-left: 10px !important;
   }
-
 
   #sceneList,
   .mobile #sceneList {

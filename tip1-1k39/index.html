@@ -153,20 +153,31 @@
 
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
+  window.addEventListener('load', function() {
     var toggleBtn = document.getElementById('finish-variant-toggle-btn');
     var hintBox = document.getElementById('finish-variant-hint');
 
     if (toggleBtn && hintBox) {
+      // 1. Запускаем таймер на 6 секунд (6000 мс) после полной загрузки проекта
+      var showTimer = setTimeout(function() {
+        // Показываем только если пользователь еще не успел включить тумблер сам
+        if (!toggleBtn.checked && !hintBox.classList.contains('is-dismissed')) {
+          hintBox.classList.add('is-visible');
+        }
+      }, 6000);
+
+      // 2. При включении тумблера отменяем таймер и навсегда скрываем подсказку
       toggleBtn.addEventListener('change', function() {
-        // Как только тумблер включили — вешаем класс исчезновения навсегда
         if (this.checked) {
+          clearTimeout(showTimer);
+          hintBox.classList.remove('is-visible');
           hintBox.classList.add('is-dismissed');
         }
       });
     }
   });
 </script>
+
 
 
 
