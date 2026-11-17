@@ -525,7 +525,7 @@ var view = new Marzipano.RectilinearView(data.initialViewParameters, limiter);
 
 
   // Умный запуск стартовой сцены с учетом выбранного режима отделки
-  var startScene = scenes[8]; // Твоя дефолтная стартовая сцена (HallWay)
+  var startScene = scenes[2]; // Твоя дефолтная стартовая сцена
   if (isWhiteStyle && startScene.data && startScene.data.name) {
     var targetNameWb = startScene.data.name + '_REPAIR';
     for (var i = 0; i < scenes.length; i++) {

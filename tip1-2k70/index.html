@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Скоро будет Тур по планировке 2-к. квартира - 70м²</title>
+    <link rel="icon" type="image/png" href="../favicon.png"> <!-- 👈 Вставить сюда -->
+    
+    <!-- Подключение фирменного шрифта Inter -->
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ==========================================================
+           УДОБНАЯ РЕГУЛИРОВКА РАЗМЕРА КАРТИНКИ (МЕНЯЙТЕ ТУТ)
+           ========================================================== */
+        :root {
+            --plan-width: 450px; /* Было 900px (уменьшено на 50%). Можно указать в px или % (например, 50%) */
+        }
+
+        /* Базовые настройки из вашего стиля */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            background-color: #14181d;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Секция страницы */
+        .plan-preview-section {
+            min-height: 100vh;
+            padding: 80px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .plan-container {
+            max-width: 1100px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Крупный заголовок в вашем фирменном стиле */
+        .block-title {
+            color: #ffffff;
+            font-size: 42px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+            line-height: 1.3;
+            margin-bottom: 50px;
+        }
+
+        /* Контейнер под изображение планировки */
+        .plan-image-wrapper {
+            width: 100%;
+            max-width: var(--plan-width); /* Берет значение из переменной выше */
+            background-color: #1a2026;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: max-width 0.3s ease;
+        }
+
+        .plan-img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+
+        /* ==========================================================
+           ОПТИМИЗАЦИЯ ПОД МОБИЛЬНЫЕ УСТРОЙСТВА (СМАРТФОНЫ)
+           ========================================================== */
+        @media (max-width: 768px) {
+            .plan-preview-section {
+                padding: 40px 15px;
+            }
+            .block-title {
+                font-size: 26px;
+                letter-spacing: 1px;
+                margin-bottom: 25px;
+            }
+            .plan-image-wrapper {
+                padding: 12px;
+                /* На телефоне картинка не будет слишком мелкой, но и не вылезет за экран */
+                max-width: min(var(--plan-width), 100%); 
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <main class="plan-preview-section">
+        <div class="plan-container">
+            <h1 class="block-title">
+   		 Скоро будет Тур по планировке<br>
+   		 <span style="color: #ff8562; font-size: 0.75em;">2-к. квартира - 70м²</span>
+	    </h1>
+
+            
+            <div class="plan-image-wrapper">
+                <img src="img/plan.png" alt="Планировка объекта" class="plan-img">
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>
