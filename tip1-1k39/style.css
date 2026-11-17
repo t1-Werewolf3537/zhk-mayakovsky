@@ -734,8 +734,8 @@ body.view-control-buttons .viewControlButton { display: block; }
 
 .map-nav-point {
   position: absolute !important;
-  width: 3.1cqw !important;              /* Размер синей точки */
-  height: 3.1cqw !important;
+  width: 3.7cqw !important;              /* Размер синей точки */
+  height: 3.7cqw !important;
   background-color: rgba(0, 123, 255, 0.7) !important; /* Цвет синей точки */
   border: 0.4cqw solid #ffffff !important; /* Толщина белой обводки */
   border-radius: 50% !important;
