@@ -4,8 +4,8 @@ var APP_DATA = {
       "id": "1",
       "name": "Bath",
       "mapCoords": {
-        "left": "82.08%",
-        "top": "77.38%"
+        "left": "81.95%",
+        "top": "79.38%"
       },
       "levels": [
         {
@@ -46,8 +46,8 @@ var APP_DATA = {
       "id": "2",
       "name": "BedRoom",
       "mapCoords": {
-        "left": "58.08%",
-        "top": "29.38%"
+        "left": "56.45%",
+        "top": "29.88%"
       },
       "levels": [
         {
@@ -89,7 +89,7 @@ var APP_DATA = {
       "name": "HallWay",
       "mapCoords": {
         "left": "55.95%",
-        "top": "78.38%"
+        "top": "79.38%"
       },
       "levels": [
         {
@@ -114,7 +114,7 @@ var APP_DATA = {
       "initialViewParameters": {
         "yaw": 0,
         "pitch": 0,
-        "fov": 1.5
+        "fov": 1.7
       },
       "linkHotspots": [
         {
@@ -142,7 +142,7 @@ var APP_DATA = {
       "id": "4",
       "name": "Kitchen",
       "mapCoords": {
-        "left": "23.45%",
+        "left": "22.70%",
         "top": "70.88%"
       },
       "levels": [
@@ -190,8 +190,8 @@ var APP_DATA = {
       "id": "5",
       "name": "Living",
       "mapCoords": {
-        "left": "26.45%",
-        "top": "37.25%"
+        "left": "27.95%",
+        "top": "36.75%"
       },
       "levels": [
         {
@@ -226,12 +226,6 @@ var APP_DATA = {
           "target": "4"
         },
         {
-          "yaw": 2.5305522616699943,
-          "pitch": 0.32713541252326195,
-          "rotation": 0,
-          "target": "3"
-        },
-        {
           "yaw": 0.25786232706208523,
           "pitch": 0.5265866027329924,
           "rotation": 0,
@@ -244,8 +238,8 @@ var APP_DATA = {
       "id": "6",
       "name": "Loggia",
       "mapCoords": {
-        "left": "26.83%",
-        "top": "10.88%"
+        "left": "26.45%",
+        "top": "11.38%"
       },
       "levels": [
         {
