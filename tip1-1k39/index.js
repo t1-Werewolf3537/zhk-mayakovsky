@@ -562,7 +562,7 @@ var view = new Marzipano.RectilinearView(data.initialViewParameters, limiter);
   // =========================================================================
   
   // НАСТРОЙКА СТАРТА: true = без ремонта (ID 8/9, plan_REPAIR), false = с ремонтом
-  isWhiteStyle = true; 
+  isWhiteStyle = false; 
 
   var finishToggleInput = document.getElementById('finish-variant-toggle-btn');
   var mapImageEl = document.getElementById('mini-map-img');
@@ -570,9 +570,8 @@ var view = new Marzipano.RectilinearView(data.initialViewParameters, limiter);
   function syncInterfaceStyle() {
     if (!finishToggleInput) return;
     
-    // Выставляем положение чекбокса в зависимости от значения флага
-    // Если ищем _REPAIR (без ремонта), тумблер выключен, иначе включен
-    finishToggleInput.checked = !isWhiteStyle;
+    // Тумблер включен (checked = true), когда активен режим _REPAIR (isWhiteStyle = true)
+    finishToggleInput.checked = isWhiteStyle;
 
     if (isWhiteStyle) {
       if (mapImageEl) mapImageEl.src = 'img/plan_REPAIR.jpg';
@@ -580,6 +579,7 @@ var view = new Marzipano.RectilinearView(data.initialViewParameters, limiter);
       if (mapImageEl) mapImageEl.src = 'img/plan.jpg';
     }
   }
+
 
   // Применяем графику карт сразу при инициализации страницы
   syncInterfaceStyle();
