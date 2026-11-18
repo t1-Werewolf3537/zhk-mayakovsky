@@ -2,23 +2,21 @@
    ЧАСТЬ 1: ПЕРЕМЕННЫЕ, БАЗОВЫЕ СТИЛИ, ПАНОРАМА И ВЕРХНЯЯ ПАНЕЛЬ
    ========================================================================== */
 
-/* --- 1. ГЛОБАЛЬНЫЕ НАСТРОЙКИ МАСШТАБА И ПЕРЕМЕННЫЕ ИНТЕРФЕЙСА -------------- */
 :root {
   /* Мини-карта: ширина от экрана */
-  --map-width-desktop: 25vw;         /* Ширина карты на ПК */
-  --map-width-mobile: 75vw;          /* Ширина карты на телефонах */
+  --map-width-desktop: 25vw;
+  --map-width-mobile: 75vw;
 
   /* Картинка с текстом под логотипом ЖК */
-  --dynamic-image-scale-pc: 1.0;     /* Масштаб картинки на ПК (1.0 = 100%) */
-  --dynamic-image-scale-mobile: 0.4; /* Масштаб картинки на телефонах */
-  --dynamic-image-opacity: 0.5;      /* Прозрачность текста (от 0.0 до 1.0) */
+  --dynamic-image-scale-pc: 1.0;
+  --dynamic-image-scale-mobile: 0.4;
+  --dynamic-image-opacity: 0.5;
 
   /* Текст-подсказка под iOS-тумблером переключения отделки */
-  --switch-text-scale-pc: 1.5;       /* Масштаб текста на ПК */
-  --switch-text-scale-mobile: 0.85;  /* Масштаб текста на телефонах */
+  --switch-text-scale-pc: 1.5;
+  --switch-text-scale-mobile: 0.85;
 }
 
-/* --- 2. СБРОС СТАНДАРТНЫХ СТИЛЕЙ БРАУЗЕРА --------------------------------- */
 * {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -54,7 +52,7 @@ a, a:hover, a:active, a:visited {
   color: inherit;
 }
 
-/* --- 3. КОНТЕЙНЕР ПАНОРАМЫ ------------------------------------------------ */
+/* --- КОНТЕЙНЕР ПАНОРАМЫ --------------------------------------------------- */
 #pano {
   position: absolute;
   top: 0;
@@ -62,27 +60,25 @@ a, a:hover, a:active, a:visited {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  z-index: 1; /* Самый нижний базовый слой */
+  z-index: 1;
 }
 
-/* --- 4. ВЕРХНЯЯ ПАНЕЛЬ С НАЗВАНИЕМ СЦЕНЫ ---------------------------------- */
+/* --- ВЕРХНЯЯ ПАНЕЛЬ С НАЗВАНИЕМ СЦЕНЫ ------------------------------------- */
 #titleBar {
   position: absolute;
   top: 0;
   left: 0;
   right: 40px;
-  height: 40px; /* Высота верхней панели на ПК */
+  height: 40px;
   text-align: center;
-  z-index: 45;  /* Слой стандартного интерфейса */
+  z-index: 45;
 }
 
 .mobile #titleBar {
-  height: 50px; /* Высота верхней панели на телефонах */
+  height: 50px;
   right: 50px;
 }
 
-body.fullscreen-enabled #titleBar { right: 80px; }
-body.fullscreen-enabled.mobile #titleBar { right: 100px; }
 body.multiple-scenes #titleBar { left: 40px; }
 body.multiple-scenes.mobile #titleBar { left: 50px; }
 
@@ -91,7 +87,7 @@ body.multiple-scenes.mobile #titleBar { left: 50px; }
   height: 100%;
   line-height: 30px;
   padding: 5px;
-  background-color: rgba(20, 25, 35, 0.6) !important; /* Цвет и прозрачность плашки */
+  background-color: rgba(20, 25, 35, 0.6) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
   overflow: hidden;
@@ -104,83 +100,26 @@ body.multiple-scenes.mobile #titleBar { left: 50px; }
   line-height: 40px;
 }
 
-/* --- 5. КНОПКИ ПОЛНОГО ЭКРАНА И АВТОВРАЩЕНИЯ ------------------------------ */
-#fullscreenToggle,
-#autorotateToggle {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 40px;  /* Размер кнопок на ПК */
-  height: 40px;
-  padding: 5px;
-  background-color: rgba(103, 115, 131, 0.8); /* Цвет фона кнопок */
-  z-index: 45;
-}
-
-#fullscreenToggle { display: none; }
-body.fullscreen-enabled #fullscreenToggle { display: block; }
-#autorotateToggle { display: block; }
-body.fullscreen-enabled #autorotateToggle { right: 40px; }
-
-.mobile #fullscreenToggle,
-.mobile #autorotateToggle {
-  width: 50px;  /* Размер кнопок на телефонах */
-  height: 50px;
-}
-body.fullscreen-enabled.mobile #autorotateToggle { right: 50px; }
-
-#fullscreenToggle .icon,
-#autorotateToggle .icon {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 30px;
-  height: 30px;
-}
-
-.mobile #fullscreenToggle .icon,
-.mobile #autorotateToggle .icon {
-  top: 10px;
-  right: 10px;
-}
-
-#fullscreenToggle .icon.on,
-#autorotateToggle .icon.on { display: none; }
-#fullscreenToggle .icon.off,
-#autorotateToggle .icon.off { display: block; }
-#fullscreenToggle.enabled .icon.on,
-#autorotateToggle.enabled .icon.on { display: block; }
-#fullscreenToggle.enabled .icon.off,
-#autorotateToggle.enabled .icon.off { display: none; }
-
 /* ==========================================================================
-   ЧАСТЬ 2: МЕНЮ СПИСКА СЦЕН И СТРЕЛКИ ПЕРЕХОДА МЕЖДУ КОМНАТАМИ
+   ЧАСТЬ 2: МЕНЮ СПИСКА КВАРТИР И СТРЕЛКИ ПЕРЕХОДА МЕЖДУ КОМНАТАМИ
    ========================================================================== */
 
-/* --- 1. КНОПКА ОТКРЫТИЯ СПИСКА СЦЕН (СЛЕВА СВЕРХУ) ------------------------ */
+/* --- КНОПКА ОТКРЫТИЯ СПИСКА (СЛЕВА СВЕРХУ) -------------------------------- */
 #sceneListToggle {
   position: absolute;
   top: 0;
   left: 0;
-  width: 40px;  /* Ширина кнопки на ПК */
-  height: 40px; /* Высота кнопки на ПК */
+  width: 40px;
+  height: 40px;
   padding: 5px;
-  background-color: rgba(0, 123, 255, 0.8); /* Синий цвет кнопки меню */
-  z-index: 2001 !important; /* Всегда на 1 слой выше выезжающего меню (2000) */
-}
-
-.mobile #sceneListToggle {
-  width: 50px;  /* Размер кнопки на телефонах */
-  height: 50px;
+  background-color: rgba(0, 123, 255, 0.8);
   z-index: 2001 !important;
 }
 
-#sceneListToggle .text {
-  position: absolute;
-  top: 5px;
-  left: 15px;
-  width: 100%;
-  line-height: 30px;
+.mobile #sceneListToggle {
+  width: 50px;
+  height: 50px;
+  z-index: 2001 !important;
 }
 
 #sceneListToggle .icon {
@@ -201,18 +140,18 @@ body.fullscreen-enabled.mobile #autorotateToggle { right: 50px; }
 #sceneListToggle.enabled .icon.on { display: block; }
 #sceneListToggle.enabled .icon.off { display: none; }
 
-/* --- 2. ВЫЕЗЖАЮЩИЙ СПИСОК СЦЕН -------------------------------------------- */
+/* --- ВЫЕЗЖАЮЩИЙ СПИСОК КВАРТИР -------------------------------------------- */
 #sceneList {
   position: absolute;
   top: 0;
   left: -350px;
   padding-top: 40px;
-  width: 350px; /* Ширина выезжающего меню на ПК */
+  width: 350px;
   max-height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
   margin-left: 0;
-  z-index: 2000 !important; /* Поверх абсолютно всех элементов интерфейса */
+  z-index: 2000 !important;
   -webkit-transition: margin-left 0.5s ease-in-out;
   transition: margin-left 0.5s ease-in-out;
 }
@@ -223,7 +162,7 @@ body.fullscreen-enabled.mobile #autorotateToggle { right: 50px; }
 
 #sceneList .scenes {
   width: 100%;
-  background-color: rgba(20, 25, 35, 0.9) !important; /* Фон списка */
+  background-color: rgba(20, 25, 35, 0.9) !important;
   border: 1px solid rgba(255, 255, 255, 0.8) !important;
   border-radius: 5px;
 }
@@ -248,7 +187,7 @@ body.fullscreen-enabled.mobile #autorotateToggle { right: 50px; }
 #sceneList .scene .text {
   width: 100%;
   height: auto !important;
-  padding: 8px 15px; /* Внутренние отступы пунктов меню */
+  padding: 8px 15px;
   line-height: 1.4;
   overflow: visible;
   text-overflow: clip;
@@ -261,26 +200,17 @@ body.fullscreen-enabled.mobile #autorotateToggle { right: 50px; }
 }
 
 .no-touch #sceneList .scene:hover {
-  background-color: rgba(250, 250, 250, 0.4) !important; /* Подсветка при наведении */
+  background-color: rgba(250, 250, 250, 0.4) !important;
 }
 
-#sceneList .scene.current {
-  background-color: rgba(15, 18, 25, 0.9) !important;  /* Подсветка активной сцены */
-}
-
-body.single-scene #sceneList,
-body.single-scene #sceneListToggle {
-  display: none;
-}
-
-/* --- 3. СТРЕЛКИ ПЕРЕХОДА МЕЖДУ СЦЕНАМИ (LINK HOTSPOT) ---------------------- */
+/* --- СТРЕЛКИ ПЕРЕХОДА МЕЖДУ СЦЕНАМИ (LINK HOTSPOT) ------------------------ */
 .link-hotspot {
-  width: 60px;         /* Размер стрелки перехода на ПК */
+  width: 60px;
   height: 60px;
-  margin-left: -30px;  /* Ровно половина ширины для центрирования */
-  margin-top: -30px;   /* Ровно половина высоты для центрирования */
+  margin-left: -30px;
+  margin-top: -30px;
   opacity: 0.9;
-  z-index: 10;         /* Слой точек внутри панорамы */
+  z-index: 10;
   -webkit-transition: opacity 0.2s;
   transition: opacity 0.2s;
 }
@@ -290,7 +220,7 @@ body.single-scene #sceneListToggle {
 }
 
 .mobile .link-hotspot {
-  width: 50px;         /* Размер стрелки перехода на телефонах */
+  width: 50px;
   height: 50px;
   margin-left: -25px;
   margin-top: -25px;
@@ -306,293 +236,23 @@ body.single-scene #sceneListToggle {
 
 .no-touch .link-hotspot:hover img,
 .no-touch .link-hotspot-icon:hover {
-  transform: scale(1.15) !important; /* Увеличение стрелки на 15% при наведении */
-}
-
-/* Скрываем всплывающие названия комнат над стрелками */
-.link-hotspot-tooltip,
-.link-hotspot .link-hotspot-tooltip,
-.link-hotspot:hover .link-hotspot-tooltip,
-.link-hotspot-text {
-  display: none !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-  white-space: normal !important;
+  transform: scale(1.15) !important;
 }
 
 /* ==========================================================================
-   ЧАСТЬ 3: ИНФОРМАЦИОННЫЕ ТОЧКИ, МОДАЛЬНЫЕ ОКНА И КНОПКИ ОБЗОРА
+   ЧАСТЬ 3: МИНИ-КАРТА, ЛУЧ-РАДАР И ТОЧКИ ПЕРЕКЛЮЧЕНИЯ КОМНАТ
    ========================================================================== */
 
-/* --- 1. ИНФОРМАЦИОННЫЕ ТОЧКИ НА ПАНОРАМЕ (INFO HOTSPOT) ------------------- */
-.info-hotspot {
-  line-height: 1.2em;
-  opacity: 0.9;
-  z-index: 15; /* Чуть выше стрелок перехода (10) */
-  transition: opacity 0.2s 0.2s;
-}
-
-.no-touch .info-hotspot:hover {
-  opacity: 1;
-  transition: opacity 0.2s;
-}
-
-.info-hotspot.visible {
-  opacity: 1;
-  z-index: 25; /* Раскрытая карточка поверх соседних точек */
-}
-
-.info-hotspot .info-hotspot-header {
-  width: 40px;  /* Размер свернутой иконки на ПК */
-  height: 40px;
-  border-radius: 20px;
-  background-color: rgb(103, 115, 131); /* Цвет плашки заголовка */
-  cursor: pointer;
-  transition: width 0.3s ease-in-out 0.5s, border-radius 0.3s ease-in-out 0.5s;
-}
-
-.mobile .info-hotspot .info-hotspot-header {
-  width: 50px;  /* Размер свернутой иконки на телефонах */
-  height: 50px;
-  border-radius: 25px;
-}
-
-.desktop.no-touch .info-hotspot .info-hotspot-header:hover,
-.desktop .info-hotspot.visible .info-hotspot-header {
-  width: 260px; /* Ширина раскрытого заголовка */
-  border-radius: 5px;
-  transition: width 0.3s ease-in-out, border-radius 0.3s ease-in-out;
-}
-
-.desktop .info-hotspot.visible .info-hotspot-header {
-  border-radius: 5px 0 0 0;
-}
-
-.info-hotspot .info-hotspot-icon-wrapper { width: 40px; height: 40px; }
-.mobile .info-hotspot .info-hotspot-icon-wrapper { width: 50px; height: 50px; }
-.info-hotspot .info-hotspot-icon { width: 90%; height: 90%; margin: 5%; }
-
-.info-hotspot .info-hotspot-title-wrapper {
-  position: absolute;
-  left: 40px;
-  top: 0;
-  width: 0;
-  height: 40px;
-  padding: 0;
-  overflow: hidden;
-  transition: width 0s 0.4s, padding 0s 0.4s;
-}
-
-.desktop .info-hotspot.visible .info-hotspot-title-wrapper,
-.desktop.no-touch .info-hotspot .info-hotspot-header:hover .info-hotspot-title-wrapper {
-  width: 220px;
-  padding: 0 5px;
-  transition: width 0s 0.4s, padding 0s 0.4s;
-}
-
-.info-hotspot .info-hotspot-title-wrapper:before {
-  content: '';
-  display: inline-block;
-  vertical-align: middle;
-  height: 100%;
-}
-
-.info-hotspot .info-hotspot-title {
-  display: inline-block;
-  vertical-align: middle;
-  user-select: text;
-}
-
-.info-hotspot .info-hotspot-close-wrapper {
-  position: absolute;
-  left: 260px;
-  top: 0;
-  height: 40px;
-  width: 40px;
-  border-top-right-radius: 5px;
-  background-color: rgb(78, 88, 104); /* Цвет кнопки закрытия карточки */
-  visibility: hidden;
-  transform: perspective(200px) rotateY(90deg);
-  transform-origin: 0 50% 0;
-  transition: transform 0.3s 0.3s, visibility 0s 0.6s;
-}
-
-.desktop .info-hotspot.visible .info-hotspot-close-wrapper {
-  visibility: visible;
-  transform: perspective(200px) rotateY(0deg);
-  transition: transform 0.3s, visibility 0s 0s;
-}
-
-.info-hotspot .info-hotspot-close-icon { width: 70%; height: 70%; margin: 15%; }
-
-.info-hotspot .info-hotspot-text {
-  position: absolute;
-  width: 300px;       /* Ширина текстового блока */
-  height: auto;
-  max-height: 200px;  /* Максимальная высота текста до появления прокрутки */
-  top: 40px;
-  left: 0;
-  padding: 10px;
-  background-color: rgb(58, 68, 84); /* Фон блока с описанием */
-  border-radius: 0 0 5px 5px;
-  overflow-y: auto;
-  visibility: hidden;
-  transform: perspective(200px) rotateX(-89.999deg);
-  transform-origin: 50% 0 0;
-  transition: transform 0.3s, visibility 0s 0.3s;
-  user-select: text;
-}
-
-.desktop .info-hotspot.visible .info-hotspot-text {
-  visibility: visible;
-  transform: perspective(200px) rotateX(0deg);
-  transition: transform 0.3s 0.3s, visibility 0s 0s;
-}
-
-/* --- 2. МОДАЛЬНОЕ ОКНО ИНФОРМАЦИИ (ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ) --------------- */
-.desktop .info-hotspot-modal { display: none; }
-
-.info-hotspot-modal {
-  top: 0;
-  left: 0;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  z-index: 1000 !important; /* Самый верхний слой: перекрывает весь интерфейс */
-  background-color: rgba(0, 0, 0, 0.5);
-  line-height: 1.2em;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.2s ease-in-out 0.5s, visibility 0s 0.7s;
-}
-
-.info-hotspot-modal.visible {
-  opacity: 1;
-  visibility: visible;
-  transition: opacity 0.2s ease-in-out, visibility 0s 0s;
-}
-
-.info-hotspot-modal .info-hotspot-header {
-  position: absolute;
-  top: 60px;
-  left: 10px;
-  right: 10px;
-  width: auto;
-  height: 50px;
-  background-color: rgba(103, 115, 131, 0.8);
-  opacity: 0;
-  transition: opacity 0.3s ease-in-out 0.2s;
-}
-
-.info-hotspot-modal.visible .info-hotspot-header { opacity: 1; }
-.info-hotspot-modal .info-hotspot-icon-wrapper { width: 50px; height: 50px; }
-.info-hotspot-modal .info-hotspot-icon { width: 90%; height: 90%; margin: 5%; }
-
-.info-hotspot-modal .info-hotspot-title-wrapper {
-  position: absolute;
-  top: 0;
-  left: 50px;
-  right: 50px;
-  width: auto;
-  height: 50px;
-  padding: 0 10px;
-}
-
-.info-hotspot-modal .info-hotspot-title-wrapper:before {
-  content: '';
-  display: inline-block;
-  vertical-align: middle;
-  height: 100%;
-}
-
-.info-hotspot-modal .info-hotspot-title {
-  display: inline-block;
-  vertical-align: middle;
-  user-select: text;
-}
-
-.info-hotspot-modal .info-hotspot-close-wrapper {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 50px;
-  height: 50px;
-  background-color: rgba(78, 88, 104, 0.8);
-  cursor: pointer;
-}
-
-.info-hotspot-modal .info-hotspot-close-icon { width: 70%; height: 70%; margin: 15%; }
-
-.info-hotspot-modal .info-hotspot-text {
-  position: absolute;
-  top: 110px;
-  bottom: 10px;
-  left: 10px;
-  right: 10px;
-  padding: 10px;
-  background-color: rgba(58, 68, 84, 0.8);
-  overflow-y: auto;
-  opacity: 0;
-  transition: opacity 0.3s ease-in-out;
-  user-select: text;
-}
-
-.info-hotspot-modal.visible .info-hotspot-text {
-  opacity: 1;
-  transition: opacity 0.3s ease-in-out 0.4s;
-}
-
-/* --- 3. НИЖНИЕ КНОПКИ УПРАВЛЕНИЯ ОБЗОРОМ (VIEW CONTROL BUTTONS) ------------ */
-.viewControlButton {
-  display: none;
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: 40px;  /* Размер кнопок обзора */
-  height: 40px;
-  padding: 5px;
-  background-color: rgba(103, 115, 131, 0.8);
-  z-index: 45;
-}
-
-body.view-control-buttons .viewControlButton { display: block; }
-
-@media (max-width: 600px) {
-  body.view-control-buttons .viewControlButton { display: none; }
-}
-
-.viewControlButton .icon {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 30px;
-  height: 30px;
-}
-
-.viewControlButton-1 { margin-left: -145px; }
-.viewControlButton-2 { margin-left: -95px; }
-.viewControlButton-3 { margin-left: -45px; }
-.viewControlButton-4 { margin-left: 5px; }
-.viewControlButton-5 { margin-left: 55px; }
-.viewControlButton-6 { margin-left: 105px; }
-
-/* ==========================================================================
-   ЧАСТЬ 4: МИНИ-КАРТА, ЛУЧ-РАДАР И ТОЧКИ ПЕРЕКЛЮЧЕНИЯ КОМНАТ
-   ========================================================================== */
-
-/* --- 1. КНОПКА ОТКРЫТИЯ «КАРТА» (В ЛЕВОМ НИЖНЕМ УГЛУ) ---------------------- */
 .map-open-button {
   position: absolute !important;
-  bottom: 20px !important;               /* Отступ снизу */
-  left: 20px !important;                 /* Отступ слева */
-  z-index: 110 !important;               /* Чуть выше свернутой карты (100) */
-  background-color: rgba(20, 25, 35, 0.6) !important; /* Фон кнопки */
+  bottom: 20px !important;
+  left: 20px !important;
+  z-index: 110 !important;
+  background-color: rgba(20, 25, 35, 0.6) !important;
   color: #ffffff !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   border-radius: 4px !important;
-  padding: 8px 16px !important;          /* Внутренние отступы кнопки */
+  padding: 8px 16px !important;
   font-family: sans-serif !important;
   font-size: 14px !important;
   cursor: pointer !important;
@@ -602,7 +262,7 @@ body.view-control-buttons .viewControlButton { display: block; }
 }
 
 .no-touch .map-open-button:hover {
-  background-color: rgb(103, 115, 131) !important; /* Цвет при наведении */
+  background-color: rgb(103, 115, 131) !important;
 }
 
 .map-open-button.hidden-state {
@@ -611,12 +271,11 @@ body.view-control-buttons .viewControlButton { display: block; }
   pointer-events: none !important;
 }
 
-/* --- 2. ОСНОВНОЙ КОНТЕЙНЕР МИНИ-КАРТЫ ------------------------------------- */
 #mini-map-wrapper {
   position: absolute !important;
-  bottom: 20px !important;               /* Отступ карты снизу */
-  left: 20px !important;                 /* Отступ карты слева */
-  z-index: 100 !important;               /* Слой открытой карты */
+  bottom: 20px !important;
+  left: 20px !important;
+  z-index: 100 !important;
   height: auto !important;
   pointer-events: none !important;
   opacity: 0 !important;
@@ -630,7 +289,6 @@ body.view-control-buttons .viewControlButton { display: block; }
   pointer-events: auto !important;
 }
 
-/* Обертка, задающая пропорции картинки (1cqw = 1% ширины карты) */
 .map-inner {
   position: relative !important;
   display: inline-block !important;
@@ -639,7 +297,6 @@ body.view-control-buttons .viewControlButton { display: block; }
   width: 100% !important;
 }
 
-/* Адаптивная ширина карты (берет значения из :root в Части 1) */
 @media (min-width: 769px) {
   .map-inner { width: clamp(250px, var(--map-width-desktop), 85vw) !important; }
 }
@@ -647,14 +304,13 @@ body.view-control-buttons .viewControlButton { display: block; }
   .map-inner { width: clamp(140px, var(--map-width-mobile), 85vw) !important; }
 }
 
-/* --- 3. КНОПКА-КРЕСТИК ЗАКРЫТИЯ КАРТЫ ------------------------------------- */
 #mini-map-close-btn {
   position: absolute !important;
-  top: -10px !important;                 /* Выступ крестика сверху */
-  right: -10px !important;               /* Выступ крестика справа */
-  width: 22px !important;                /* Диаметр кнопки закрытия */
+  top: -10px !important;
+  right: -10px !important;
+  width: 22px !important;
   height: 22px !important;
-  background-color: rgba(0, 123, 255, 0.8) !important; /* Синий фон */
+  background-color: rgba(0, 123, 255, 0.8) !important;
   border: 1px solid rgba(255, 255, 255, 0.2) !important;
   border-radius: 50% !important;
   color: #ffffff !important;
@@ -663,14 +319,13 @@ body.view-control-buttons .viewControlButton { display: block; }
   text-align: center !important;
   cursor: pointer !important;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
-  z-index: 120 !important;               /* Выше карты (100) и всех точек */
+  z-index: 120 !important;
 }
 
 #mini-map-close-btn:hover {
-  background-color: #ff3333 !important;  /* Красный цвет при наведении */
+  background-color: #ff3333 !important;
 }
 
-/* --- 4. КАРТИНКА ПЛАНИРОВКИ ----------------------------------------------- */
 #mini-map-img {
   width: 100% !important;
   height: auto !important;
@@ -678,30 +333,28 @@ body.view-control-buttons .viewControlButton { display: block; }
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5)) !important;
 }
 
-/* --- 5. КРАСНЫЙ МАРКЕР ТЕКУЩЕЙ КОМНАТЫ И ЛУЧ-РАДАР ------------------------ */
 #mini-map-dot {
   position: absolute !important;
-  width: 4cqw !important;                /* Размер красной точки */
+  width: 4cqw !important;
   height: 4cqw !important;
-  background-color: #ff3333 !important;  /* Цвет красной точки */
-  border: 0.5cqw solid #ffffff !important; /* Толщина белой обводки */
+  background-color: #ff3333 !important;
+  border: 0.5cqw solid #ffffff !important;
   border-radius: 50% !important;
   box-shadow: 0 0 8px rgba(255, 51, 51, 0.8) !important;
-  z-index: 20 !important;                /* ВЫШЕ синих точек (10) */
-  pointer-events: auto !important;       /* Блокирует клики сквозь красную точку */
-  cursor: default !important;            /* Обычный курсор (точка не кликабельна) */
+  z-index: 20 !important;
+  pointer-events: auto !important;
+  cursor: default !important;
   transition: opacity 0.2s ease-in-out !important;
   transform: translate(-50%, -50%);
 }
 
-/* Белый луч-радар (остриё обрезано под границу точки, чтобы не залезать на неё) */
 #mini-map-dot::before {
   content: '' !important;
   position: absolute !important;
   top: 50% !important;
   left: 50% !important;
-  width: 13cqw !important;               /* Ширина конуса луча */
-  height: 17cqw !important;              /* Длина луча */
+  width: 13cqw !important;
+  height: 17cqw !important;
   transform-origin: top center !important;
   transform: translate(-50%, 0) !important;
   background: linear-gradient(
@@ -710,71 +363,64 @@ body.view-control-buttons .viewControlButton { display: block; }
     rgba(255, 255, 255, 1) 20%,
     rgba(255, 255, 255, 0) 100%
   ) !important;
-  /* Срезаем верхние 11% треугольника (ровно радиус красной точки 2cqw) */
   clip-path: polygon(44% 11%, 56% 11%, 100% 100%, 0% 100%) !important;
-  pointer-events: none !important;       /* Клики свободно проходят сквозь луч */
+  pointer-events: none !important;
 }
 
-/* Плавное скрытие маркера в момент переключения комнат */
 #mini-map-dot.switching {
   opacity: 0 !important;
   visibility: hidden !important;
 }
 
-/* --- 6. СИНИЕ ИНТЕРАКТИВНЫЕ ТОЧКИ ПЕРЕКЛЮЧЕНИЯ КОМНАТ --------------------- */
 #mini-map-points {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 10 !important;                /* НИЖЕ красной точки (20) */
-  pointer-events: none;                  /* Контейнер пропускает клики */
+  z-index: 10 !important;
+  pointer-events: none;
 }
 
 .map-nav-point {
   position: absolute !important;
-  width: 3.7cqw !important;              /* Размер синей точки */
+  width: 3.7cqw !important;
   height: 3.7cqw !important;
-  background-color: rgba(0, 123, 255, 0.7) !important; /* Цвет синей точки */
-  border: 0.4cqw solid #ffffff !important; /* Толщина белой обводки */
+  background-color: rgba(0, 123, 255, 0.7) !important;
+  border: 0.4cqw solid #ffffff !important;
   border-radius: 50% !important;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
   cursor: pointer !important;
-  pointer-events: auto !important;       /* Кликабельны даже под лучом */
+  pointer-events: auto !important;
   transform: translate(-50%, -50%) !important;
   transition: transform 0.2s ease-in-out, background-color 0.2s !important;
 }
 
 .no-touch .map-nav-point:hover {
-  transform: translate(-50%, -50%) scale(1.25) !important; /* Увеличение при наведении */
-  background-color: rgb(0, 123, 255) !important;           /* Насыщенный синий */
+  transform: translate(-50%, -50%) scale(1.25) !important;
+  background-color: rgb(0, 123, 255) !important;
 }
 
 /* ==========================================================================
-   ЧАСТЬ 5.1: ЛОГОТИП ЖК, ТЕКСТОВЫЙ БАННЕР И ВОДЯНОЙ ЗНАК СТУДИИ
+   ЧАСТЬ 4: ЛОГОТИП ЖК, ТЕКСТОВЫЙ БАННЕР, ВОДЯНОЙ ЗНАК И ТУМБЛЕР ОТДЕЛКИ
    ========================================================================== */
 
-/* --- 1. КНОПКА ЛОГОТИПА ЖК (ПРАВЫЙ ВЕРХНИЙ УГОЛ) --------------------------- */
+/* --- КНОПКА ЛОГОТИПА ЖК (ПРАВЫЙ ВЕРХНИЙ УГОЛ) ----------------------------- */
 .custom-zhk-top-round {
   display: block !important;
   position: absolute !important;
   top: 0 !important;
   right: 0 !important;
-  width: 40px !important;               /* Ширина кнопки на ПК */
-  height: 40px !important;              /* Высота кнопки на ПК */
-  padding: 1px !important;              /* Внутренний отступ логотипа */
-  z-index: 60 !important;               /* Выше верхней панели (45) */
+  width: 40px !important;
+  height: 40px !important;
+  padding: 1px !important;
+  z-index: 60 !important;
   cursor: pointer !important;
   border-radius: 4px !important;
-  background-color: rgba(255, 255, 255, 0.8) !important; /* Фон кнопки */
+  background-color: rgba(255, 255, 255, 0.8) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
   transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out !important;
-}
-
-body.fullscreen-enabled .custom-zhk-top-round {
-  right: 40px !important;               /* Сдвиг влево при кнопке полного экрана */
 }
 
 .custom-zhk-top-round .zhk-round-img {
@@ -789,26 +435,22 @@ body.fullscreen-enabled .custom-zhk-top-round {
   transform: scale(1.1) !important;
 }
 
-/* --- 2. АДАПТИВНЫЙ КОНТЕЙНЕР ПОД ЛОГОТИПОМ (PNG-ТЕКСТ) -------------------- */
+/* --- АДАПТИВНЫЙ КОНТЕЙНЕР ПОД ЛОГОТИПОМ (PNG-ТЕКСТ) ---------------------- */
 .custom-dynamic-image-container {
   display: block !important;
   position: absolute !important;
-  top: 48px !important;                 /* Отступ сверху от края экрана */
+  top: 48px !important;
   right: 0 !important;
   width: auto !important;
   height: auto !important;
-  max-width: 30vw !important;           /* Максимальная ширина на ПК */
-  z-index: 35 !important;               /* Поверх панорамы, ниже кнопок и шторки */
-  pointer-events: none !important;      /* Пропускает клики и вращение панорамы */
+  max-width: 30vw !important;
+  z-index: 35 !important;
+  pointer-events: none !important;
   background: transparent !important;
   box-shadow: none !important;
   border: none !important;
   transform-origin: right top !important;
-  scale: var(--dynamic-image-scale-pc) !important; /* Масштаб из :root */
-}
-
-body.fullscreen-enabled .custom-dynamic-image-container {
-  right: 40px !important;
+  scale: var(--dynamic-image-scale-pc) !important;
 }
 
 .custom-dynamic-image-container .dynamic-responsive-img {
@@ -819,18 +461,18 @@ body.fullscreen-enabled .custom-dynamic-image-container {
   box-shadow: none !important;
   border-radius: 0 !important;
   border: none !important;
-  opacity: var(--dynamic-image-opacity) !important; /* Прозрачность из :root */
+  opacity: var(--dynamic-image-opacity) !important;
 }
 
-/* --- 3. ВОДЯНОЙ ЗНАК WOLF STUDIO (ПРАВЫЙ НИЖНИЙ УГОЛ) --------------------- */
+/* --- ВОДЯНОЙ ЗНАК WOLF STUDIO (ПРАВЫЙ НИЖНИЙ УГОЛ) ----------------------- */
 .custom-wolf-watermark-bottom {
   display: block !important;
   position: absolute !important;
-  bottom: 20px !important;              /* Отступ снизу на ПК */
-  right: 20px !important;               /* Отступ справа на ПК */
-  width: 70px !important;               /* Общий размер контейнера на ПК */
+  bottom: 20px !important;
+  right: 20px !important;
+  width: 70px !important;
   height: 70px !important;
-  z-index: 40 !important;               /* Ниже карты (100), поверх панорамы */
+  z-index: 40 !important;
   cursor: pointer !important;
   overflow: hidden !important;
   background: transparent !important;
@@ -840,13 +482,13 @@ body.fullscreen-enabled .custom-dynamic-image-container {
 
 .custom-wolf-watermark-bottom .wolf-watermark-bg {
   position: absolute !important;
-  top: 3px !important;                  /* Центрирование круга: (70 - 65) / 2 */
+  top: 3px !important;
   right: 3px !important;
-  width: 65px !important;               /* Диаметр вращающегося круга на ПК */
+  width: 65px !important;
   height: 65px !important;
   object-fit: contain !important;
   z-index: 1 !important;
-  animation: wolfWatermarkSpinner 4s linear infinite !important; /* Скорость вращения */
+  animation: wolfWatermarkSpinner 4s linear infinite !important;
 }
 
 @keyframes wolfWatermarkSpinner {
@@ -856,9 +498,9 @@ body.fullscreen-enabled .custom-dynamic-image-container {
 
 .custom-wolf-watermark-bottom .wolf-watermark-icon {
   position: absolute !important;
-  top: 8px !important;                  /* Центрирование иконки: (70 - 54) / 2 */
+  top: 8px !important;
   right: 8px !important;
-  width: 54px !important;               /* Размер центральной иконки на ПК */
+  width: 54px !important;
   height: 54px !important;
   object-fit: contain !important;
   z-index: 2 !important;
@@ -869,20 +511,16 @@ body.fullscreen-enabled .custom-dynamic-image-container {
   transform: scale(1.15) !important;
 }
 
-/* ==========================================================================
-   ЧАСТЬ 5.2: IOS-ТУМБЛЕР ПЕРЕКЛЮЧЕНИЯ ОТДЕЛКИ И АДАПТИВ ДЛЯ СМАРТФОНОВ
-   ========================================================================== */
-
-/* --- 1. IOS-ТУМБЛЕР ПЕРЕКЛЮЧЕНИЯ ОТДЕЛКИ И ПОДСКАЗКА ПОД НИМ -------------- */
+/* --- IOS-ТУМБЛЕР ПЕРЕКЛЮЧЕНИЯ ОТДЕЛКИ И ПОДСКАЗКА ПОД НИМ ---------------- */
 .ios-switch-wrapper {
   display: flex !important;
   flex-direction: column !important;
   align-items: flex-start !important;
-  gap: 5px !important;                  /* Отступ от тумблера до текста */
+  gap: 5px !important;
   position: absolute !important;
-  top: 48px !important;                 /* Отступ сверху на ПК */
-  left: 6px !important;                   /* Отступ слева на ПК */
-  z-index: 35 !important;               /* НИЖЕ выезжающего меню сцен (50) */
+  top: 48px !important;
+  left: 6px !important;
+  z-index: 35 !important;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
@@ -896,10 +534,10 @@ body.fullscreen-enabled .custom-dynamic-image-container {
   position: relative !important;
   display: inline-block !important;
   flex-shrink: 0 !important;
-  width: 42px !important;               /* Ширина тумблера на ПК */
-  height: 24px !important;              /* Высота тумблера на ПК */
+  width: 42px !important;
+  height: 24px !important;
   cursor: pointer !important;
-  pointer-events: auto !important;      /* Кликабелен только сам переключатель */
+  pointer-events: auto !important;
 }
 
 .ios-switch input {
@@ -915,7 +553,7 @@ body.fullscreen-enabled .custom-dynamic-image-container {
   left: 0 !important;
   right: 0 !important;
   bottom: 0 !important;
-  background-color: rgba(58, 68, 84, 0.65) !important; /* Фон ВЫКЛ */
+  background-color: rgba(58, 68, 84, 0.65) !important;
   border: 2px solid rgba(255, 255, 255, 1) !important;
   transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   border-radius: 24px !important;
@@ -924,7 +562,7 @@ body.fullscreen-enabled .custom-dynamic-image-container {
 .ios-switch-slider:before {
   position: absolute !important;
   content: "" !important;
-  height: 20px !important;              /* Диаметр бегунка на ПК */
+  height: 20px !important;
   width: 20px !important;
   left: 1px !important;
   bottom: 1px !important;
@@ -935,11 +573,11 @@ body.fullscreen-enabled .custom-dynamic-image-container {
 }
 
 .ios-switch input:checked + .ios-switch-slider {
-  background-color: rgba(52, 199, 89, 1) !important;   /* Фон ВКЛ (зеленый) */
+  background-color: rgba(52, 199, 89, 1) !important;
 }
 
 .ios-switch input:checked + .ios-switch-slider:before {
-  transform: translateX(18px) !important;              /* Сдвиг бегунка при ВКЛ */
+  transform: translateX(18px) !important;
 }
 
 .ios-switch-label-box {
@@ -962,7 +600,7 @@ body.fullscreen-enabled .custom-dynamic-image-container {
   pointer-events: none !important;
   cursor: default !important;
   transform-origin: 8px top !important;
-  scale: var(--switch-text-scale-pc) !important; /* Масштаб текста из :root */
+  scale: var(--switch-text-scale-pc) !important;
   opacity: 0 !important;
   visibility: hidden !important;
   transition: opacity 0.8s ease-in-out, visibility 0.8s ease-in-out !important;
@@ -987,63 +625,55 @@ body.fullscreen-enabled .custom-dynamic-image-container {
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.85)) !important;
 }
 
-/* --- 2. АДАПТИВНОСТЬ ДЛЯ СМАРТФОНОВ (КЛАСС .mobile И УЗКИЕ ЭКРАНЫ) -------- */
+/* --- АДАПТИВНОСТЬ ДЛЯ СМАРТФОНОВ (.mobile) --------------------------------- */
 .mobile .custom-zhk-top-round {
-  width: 50px !important;               /* Размер кнопки ЖК на телефоне */
+  width: 50px !important;
   height: 50px !important;
 }
 
-body.fullscreen-enabled.mobile .custom-zhk-top-round {
-  right: 50px !important;
-}
-
 .mobile .custom-dynamic-image-container {
-  top: 58px !important;                 /* Опускаем ниже увеличенной кнопки */
+  top: 58px !important;
   max-width: none !important;
   width: auto !important;
-  scale: var(--dynamic-image-scale-mobile) !important; /* Масштаб из :root */
-}
-
-body.fullscreen-enabled.mobile .custom-dynamic-image-container {
-  right: 50px !important;
+  scale: var(--dynamic-image-scale-mobile) !important;
 }
 
 .mobile .custom-wolf-watermark-bottom {
-  bottom: 15px !important;              /* Отступ снизу на телефоне */
-  right: 15px !important;               /* Отступ справа на телефоне */
-  width: 60px !important;               /* Размер контейнера на телефоне */
+  bottom: 15px !important;
+  right: 15px !important;
+  width: 60px !important;
   height: 60px !important;
 }
 
 .mobile .custom-wolf-watermark-bottom .wolf-watermark-bg {
   top: 5px !important;
   right: 5px !important;
-  width: 50px !important;               /* Диаметр круга на телефоне */
+  width: 50px !important;
   height: 50px !important;
 }
 
 .mobile .custom-wolf-watermark-bottom .wolf-watermark-icon {
   top: 8px !important;
   right: 8px !important;
-  width: 44px !important;               /* Размер иконки на телефоне */
+  width: 44px !important;
   height: 44px !important;
 }
 
 .mobile .ios-switch-wrapper {
-  scale: 1.4 !important;                /* Масштаб блока тумблера на телефоне */
-  top: 65px !important;                 /* Отступ сверху на телефоне */
+  scale: 1.4 !important;
+  top: 65px !important;
   left: 6px !important;
   gap: 5px !important;
   padding: 0 !important;
 }
 
 .mobile .ios-switch {
-  width: 36px !important;               /* Ширина тумблера на телефоне */
-  height: 20px !important;              /* Высота тумблера на телефоне */
+  width: 36px !important;
+  height: 20px !important;
 }
 
 .mobile .ios-switch-slider:before {
-  height: 16px !important;              /* Диаметр бегунка на телефоне */
+  height: 16px !important;
   width: 16px !important;
   left: 1px !important;
   bottom: 0px !important;
@@ -1054,7 +684,7 @@ body.fullscreen-enabled.mobile .custom-dynamic-image-container {
 }
 
 .mobile .ios-switch-label-box {
-  scale: var(--switch-text-scale-mobile) !important; /* Масштаб текста из :root */
+  scale: var(--switch-text-scale-mobile) !important;
   font-size: 12px !important;
   margin-left: 10px !important;
 }
