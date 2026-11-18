@@ -166,13 +166,13 @@ body.fullscreen-enabled.mobile #autorotateToggle { right: 50px; }
   height: 40px; /* Высота кнопки на ПК */
   padding: 5px;
   background-color: rgba(0, 123, 255, 0.8); /* Синий цвет кнопки меню */
-  z-index: 2001 !important; /* Всегда на 1 слой выше выезжающего меню (2000) */
+  z-index: 60 !important; /* Всегда выше шторки (50) и тумблера (35) */
 }
 
 .mobile #sceneListToggle {
   width: 50px;  /* Размер кнопки на телефонах */
   height: 50px;
-  z-index: 2001 !important;
+  z-index: 60 !important;
 }
 
 #sceneListToggle .text {
@@ -212,7 +212,7 @@ body.fullscreen-enabled.mobile #autorotateToggle { right: 50px; }
   overflow-x: hidden;
   overflow-y: auto;
   margin-left: 0;
-  z-index: 2000 !important; /* Поверх абсолютно всех элементов интерфейса */
+  z-index: 50 !important; /* Перекрывает iOS-тумблер (35) при выезде */
   -webkit-transition: margin-left 0.5s ease-in-out;
   transition: margin-left 0.5s ease-in-out;
 }
@@ -233,7 +233,7 @@ body.fullscreen-enabled.mobile #autorotateToggle { right: 50px; }
   width: 100%;
   height: 100%;
   left: -100%;
-  z-index: 2000 !important;
+  z-index: 50 !important;
 }
 
 .mobile #sceneList.enabled { margin-left: 100%; }
