@@ -1,10 +1,16 @@
+/*!
+ * © 2026 Wolf Studio (https://wolf-studio.ru) | Кирилл Бахарев. Все права защищены.
+ * Запрещено копирование, изменение и размещение данного кода и стилей на любых
+ * сайтах и ресурсах без письменного разрешения правообладателя.
+ */
+
 /* ==========================================================================
    ЧАСТЬ 1: ПЕРЕМЕННЫЕ, БАЗОВЫЕ СТИЛИ, ПАНОРАМА И ВЕРХНЯЯ ПАНЕЛЬ
    ========================================================================== */
 
 :root {
   /* Мини-карта: ширина от экрана */
-  --map-width-desktop: 25vw;
+  --map-width-desktop: 19vw;
   --map-width-mobile: 75vw;
 
   /* Картинка с текстом под логотипом ЖК */
@@ -15,23 +21,43 @@
   /* Текст-подсказка под iOS-тумблером переключения отделки */
   --switch-text-scale-pc: 1.5;
   --switch-text-scale-mobile: 0.85;
+
+  /* Точки и луч-радар мини-карты */
+  --map-point-size: 4.5cqw;
+  --map-point-color: #007bff;
+  --map-point-opacity: 0.8;
+  --map-point-border: #ffffff;
+
+  --map-dot-size: 5cqw;
+  --map-dot-color: #ff3333;
+  --map-dot-border: #ffffff;
+
+  --map-radar-width: 16.5cqw;
+  --map-radar-height: 22cqw;
+  --map-radar-color: #df5d5d;
+  --map-radar-opacity: 1;
+
+  /* Размер текста верхней плашки */
+  --title-font-desktop: 22px;
+  --title-font-mobile: 15px;
+
+  /* Размеры стрелок перехода и инфо-значков */
+  --link-hotspot-size-desktop: 62px;
+  --link-hotspot-size-mobile: 50px;
+  --info-hotspot-size-desktop: 44px;
+  --info-hotspot-size-mobile: 44px;
 }
 
 * {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
   box-sizing: border-box;
-  -moz-user-select: none;
   -webkit-user-select: none;
+  -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  -ms-text-size-adjust: none;
-  -moz-text-size-adjust: none;
   -webkit-text-size-adjust: none;
   text-size-adjust: none;
   -webkit-user-drag: none;
   -webkit-touch-callout: none;
-  -ms-content-zooming: none;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
@@ -41,6 +67,8 @@ html, body {
   padding: 0;
   margin: 0;
   overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 16px;
   background-color: #000;
@@ -52,6 +80,12 @@ a, a:hover, a:active, a:visited {
   color: inherit;
 }
 
+h1, ul, li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
 /* --- КОНТЕЙНЕР ПАНОРАМЫ --------------------------------------------------- */
 #pano {
   position: absolute;
@@ -60,7 +94,38 @@ a, a:hover, a:active, a:visited {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  touch-action: none;
   z-index: 1;
+}
+
+/* --- ПОДСКАЗКА УМНОГО СКРОЛЛА В IFRAME ------------------------------------ */
+#iframe-scroll-hint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 150;
+  background: rgba(20, 25, 35, 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  max-width: 85vw;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+}
+
+#iframe-scroll-hint.is-visible {
+  opacity: 1;
+  visibility: visible;
 }
 
 /* --- ВЕРХНЯЯ ПАНЕЛЬ С НАЗВАНИЕМ СЦЕНЫ ------------------------------------- */
@@ -85,11 +150,12 @@ body.multiple-scenes.mobile #titleBar { left: 50px; }
 #titleBar .sceneName {
   width: 100%;
   height: 100%;
+  font-size: var(--title-font-desktop);
   line-height: 30px;
   padding: 5px;
-  background-color: rgba(20, 25, 35, 0.6) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+  background-color: rgba(20, 25, 35, 0.6);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -97,6 +163,7 @@ body.multiple-scenes.mobile #titleBar { left: 50px; }
 }
 
 .mobile #titleBar .sceneName {
+  font-size: var(--title-font-mobile);
   line-height: 40px;
 }
 
@@ -113,13 +180,12 @@ body.multiple-scenes.mobile #titleBar { left: 50px; }
   height: 40px;
   padding: 5px;
   background-color: rgba(0, 123, 255, 0.8);
-  z-index: 2001 !important;
+  z-index: 2001;
 }
 
 .mobile #sceneListToggle {
   width: 50px;
   height: 50px;
-  z-index: 2001 !important;
 }
 
 #sceneListToggle .icon {
@@ -151,8 +217,7 @@ body.multiple-scenes.mobile #titleBar { left: 50px; }
   overflow-x: hidden;
   overflow-y: auto;
   margin-left: 0;
-  z-index: 2000 !important;
-  -webkit-transition: margin-left 0.5s ease-in-out;
+  z-index: 2000;
   transition: margin-left 0.5s ease-in-out;
 }
 
@@ -162,17 +227,16 @@ body.multiple-scenes.mobile #titleBar { left: 50px; }
 
 #sceneList .scenes {
   width: 100%;
-  background-color: rgba(20, 25, 35, 0.9) !important;
-  border: 1px solid rgba(255, 255, 255, 0.8) !important;
+  background-color: rgba(20, 25, 35, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: 5px;
 }
 
 .mobile #sceneList {
-  padding-top: 50px !important;
+  padding-top: 50px;
   width: 100%;
   height: 100%;
   left: -100%;
-  z-index: 2000 !important;
 }
 
 .mobile #sceneList.enabled { margin-left: 100%; }
@@ -181,12 +245,13 @@ body.multiple-scenes.mobile #titleBar { left: 50px; }
 #sceneList .scene {
   display: block;
   width: 100%;
-  height: auto !important;
+  height: auto;
 }
 
 #sceneList .scene .text {
+  display: block;
   width: 100%;
-  height: auto !important;
+  height: auto;
   padding: 8px 15px;
   line-height: 1.4;
   overflow: visible;
@@ -200,18 +265,17 @@ body.multiple-scenes.mobile #titleBar { left: 50px; }
 }
 
 .no-touch #sceneList .scene:hover {
-  background-color: rgba(250, 250, 250, 0.4) !important;
+  background-color: rgba(250, 250, 250, 0.4);
 }
 
 /* --- СТРЕЛКИ ПЕРЕХОДА МЕЖДУ СЦЕНАМИ (LINK HOTSPOT) ------------------------ */
 .link-hotspot {
-  width: 60px;
-  height: 60px;
-  margin-left: -30px;
-  margin-top: -30px;
+  width: var(--link-hotspot-size-desktop);
+  height: var(--link-hotspot-size-desktop);
+  margin-left: calc(var(--link-hotspot-size-desktop) / -2);
+  margin-top: calc(var(--link-hotspot-size-desktop) / -2);
   opacity: 0.9;
   z-index: 10;
-  -webkit-transition: opacity 0.2s;
   transition: opacity 0.2s;
 }
 
@@ -220,10 +284,10 @@ body.multiple-scenes.mobile #titleBar { left: 50px; }
 }
 
 .mobile .link-hotspot {
-  width: 50px;
-  height: 50px;
-  margin-left: -25px;
-  margin-top: -25px;
+  width: var(--link-hotspot-size-mobile);
+  height: var(--link-hotspot-size-mobile);
+  margin-left: calc(var(--link-hotspot-size-mobile) / -2);
+  margin-top: calc(var(--link-hotspot-size-mobile) / -2);
 }
 
 .link-hotspot-icon,
@@ -231,145 +295,155 @@ body.multiple-scenes.mobile #titleBar { left: 50px; }
   width: 100%;
   height: 100%;
   cursor: pointer;
-  transition: transform 0.2s ease-in-out !important;
+  scale: 1;
+  transition: scale 0.2s ease-in-out;
 }
 
 .no-touch .link-hotspot:hover img,
 .no-touch .link-hotspot-icon:hover {
-  transform: scale(1.15) !important;
+  scale: 1.15;
 }
+
 
 /* ==========================================================================
    ЧАСТЬ 3: МИНИ-КАРТА, ЛУЧ-РАДАР И ТОЧКИ ПЕРЕКЛЮЧЕНИЯ КОМНАТ
    ========================================================================== */
 
 .map-open-button {
-  position: absolute !important;
-  bottom: 20px !important;
-  left: 20px !important;
-  z-index: 110 !important;
-  background-color: rgba(20, 25, 35, 0.6) !important;
-  color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 4px !important;
-  padding: 8px 16px !important;
-  font-family: sans-serif !important;
-  font-size: 14px !important;
-  cursor: pointer !important;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3) !important;
-  transition: opacity 0.2s ease-in-out, visibility 0.2s !important;
-  pointer-events: auto !important;
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  z-index: 110;
+  background-color: rgba(20, 25, 35, 0.6);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-family: sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: opacity 0.2s ease-in-out, visibility 0.2s;
+  pointer-events: auto;
 }
 
 .no-touch .map-open-button:hover {
-  background-color: rgb(103, 115, 131) !important;
+  background-color: rgb(103, 115, 131);
 }
 
 .map-open-button.hidden-state {
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 #mini-map-wrapper {
-  position: absolute !important;
-  bottom: 20px !important;
-  left: 20px !important;
-  z-index: 100 !important;
-  height: auto !important;
-  pointer-events: none !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
-  transition: opacity 0.2s ease-in-out, visibility 0.2s !important;
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  z-index: 100;
+  height: auto;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease-in-out, visibility 0.2s;
 }
 
 #mini-map-wrapper.active-state {
-  opacity: 1 !important;
-  visibility: visible !important;
-  pointer-events: auto !important;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }
 
 .map-inner {
-  position: relative !important;
-  display: inline-block !important;
-  vertical-align: top !important;
-  container-type: inline-size !important;
-  width: 100% !important;
+  position: relative;
+  display: inline-block;
+  vertical-align: top;
+  container-type: inline-size;
+  width: 100%;
 }
 
 @media (min-width: 769px) {
-  .map-inner { width: clamp(250px, var(--map-width-desktop), 85vw) !important; }
+  .map-inner { width: clamp(250px, var(--map-width-desktop), 85vw); }
 }
 @media (max-width: 768px) {
-  .map-inner { width: clamp(140px, var(--map-width-mobile), 85vw) !important; }
+  .map-inner { width: clamp(140px, var(--map-width-mobile), 85vw); }
 }
 
 #mini-map-close-btn {
-  position: absolute !important;
-  top: -10px !important;
-  right: -10px !important;
-  width: 22px !important;
-  height: 22px !important;
-  background-color: rgba(0, 123, 255, 0.8) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  border-radius: 50% !important;
-  color: #ffffff !important;
-  font-size: 16px !important;
-  line-height: 18px !important;
-  text-align: center !important;
-  cursor: pointer !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
-  z-index: 120 !important;
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 22px;
+  height: 22px;
+  background-color: rgba(0, 123, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 16px;
+  line-height: 18px;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  z-index: 120;
 }
 
 #mini-map-close-btn:hover {
-  background-color: #ff3333 !important;
+  background-color: #ff3333;
 }
 
 #mini-map-img {
-  width: 100% !important;
-  height: auto !important;
-  display: block !important;
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5)) !important;
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
 }
 
 #mini-map-dot {
-  position: absolute !important;
-  width: 4cqw !important;
-  height: 4cqw !important;
-  background-color: #ff3333 !important;
-  border: 0.5cqw solid #ffffff !important;
-  border-radius: 50% !important;
-  box-shadow: 0 0 8px rgba(255, 51, 51, 0.8) !important;
-  z-index: 20 !important;
-  pointer-events: auto !important;
-  cursor: default !important;
-  transition: opacity 0.2s ease-in-out !important;
+  position: absolute;
+  width: var(--map-dot-size);
+  height: var(--map-dot-size);
+  z-index: 20;
+  pointer-events: auto;
+  cursor: default;
+  transition: opacity 0.2s ease-in-out;
   transform: translate(-50%, -50%);
 }
 
+#mini-map-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: var(--map-dot-color);
+  border: 0.4cqw solid var(--map-dot-border);
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.55);
+  z-index: 2;
+}
+
 #mini-map-dot::before {
-  content: '' !important;
-  position: absolute !important;
-  top: 50% !important;
-  left: 50% !important;
-  width: 13cqw !important;
-  height: 17cqw !important;
-  transform-origin: top center !important;
-  transform: translate(-50%, 0) !important;
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--map-radar-width);
+  height: var(--map-radar-height);
+  transform-origin: top center;
+  transform: translate(-50%, 0);
+  z-index: 1;
+  opacity: var(--map-radar-opacity);
   background: linear-gradient(
     to bottom,
-    rgba(255, 255, 255, 1) 0%,
-    rgba(255, 255, 255, 1) 20%,
-    rgba(255, 255, 255, 0) 100%
-  ) !important;
-  clip-path: polygon(44% 11%, 56% 11%, 100% 100%, 0% 100%) !important;
-  pointer-events: none !important;
+    var(--map-radar-color) 0%,
+    transparent 100%
+  );
+  clip-path: polygon(46% 0%, 54% 0%, 100% 100%, 0% 100%);
+  pointer-events: none;
 }
 
 #mini-map-dot.switching {
-  opacity: 0 !important;
-  visibility: hidden !important;
+  opacity: 0;
+  visibility: hidden;
 }
 
 #mini-map-points {
@@ -378,27 +452,28 @@ body.multiple-scenes.mobile #titleBar { left: 50px; }
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 10 !important;
+  z-index: 10;
   pointer-events: none;
 }
 
 .map-nav-point {
-  position: absolute !important;
-  width: 3.7cqw !important;
-  height: 3.7cqw !important;
-  background-color: rgba(0, 123, 255, 0.7) !important;
-  border: 0.4cqw solid #ffffff !important;
-  border-radius: 50% !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
-  cursor: pointer !important;
-  pointer-events: auto !important;
-  transform: translate(-50%, -50%) !important;
-  transition: transform 0.2s ease-in-out, background-color 0.2s !important;
+  position: absolute;
+  width: var(--map-point-size);
+  height: var(--map-point-size);
+  background-color: var(--map-point-color);
+  opacity: var(--map-point-opacity);
+  border: 0.3cqw solid var(--map-point-border);
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  pointer-events: auto;
+  transform: translate(-50%, -50%);
+  transition: transform 0.2s ease-in-out, opacity 0.2s;
 }
 
 .no-touch .map-nav-point:hover {
-  transform: translate(-50%, -50%) scale(1.25) !important;
-  background-color: rgb(0, 123, 255) !important;
+  transform: translate(-50%, -50%) scale(1.25);
+  opacity: 1;
 }
 
 /* ==========================================================================
@@ -407,88 +482,88 @@ body.multiple-scenes.mobile #titleBar { left: 50px; }
 
 /* --- КНОПКА ЛОГОТИПА ЖК (ПРАВЫЙ ВЕРХНИЙ УГОЛ) ----------------------------- */
 .custom-zhk-top-round {
-  display: block !important;
-  position: absolute !important;
-  top: 0 !important;
-  right: 0 !important;
-  width: 40px !important;
-  height: 40px !important;
-  padding: 1px !important;
-  z-index: 60 !important;
-  cursor: pointer !important;
-  border-radius: 4px !important;
-  background-color: rgba(255, 255, 255, 0.8) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
-  transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out !important;
+  display: block;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  padding: 1px;
+  z-index: 60;
+  cursor: pointer;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
 }
 
 .custom-zhk-top-round .zhk-round-img {
-  display: block !important;
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: contain !important;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .no-touch .custom-zhk-top-round:hover {
-  background-color: rgba(255, 255, 255, 0.95) !important;
-  transform: scale(1.1) !important;
+  background-color: rgba(255, 255, 255, 0.95);
+  transform: scale(1.1);
 }
 
 /* --- АДАПТИВНЫЙ КОНТЕЙНЕР ПОД ЛОГОТИПОМ (PNG-ТЕКСТ) ---------------------- */
 .custom-dynamic-image-container {
-  display: block !important;
-  position: absolute !important;
-  top: 48px !important;
-  right: 0 !important;
-  width: auto !important;
-  height: auto !important;
-  max-width: 30vw !important;
-  z-index: 35 !important;
-  pointer-events: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  border: none !important;
-  transform-origin: right top !important;
-  scale: var(--dynamic-image-scale-pc) !important;
+  display: block;
+  position: absolute;
+  top: 48px;
+  right: 0;
+  width: auto;
+  height: auto;
+  max-width: 30vw;
+  z-index: 35;
+  pointer-events: none;
+  background: transparent;
+  box-shadow: none;
+  border: none;
+  transform-origin: right top;
+  scale: var(--dynamic-image-scale-pc);
 }
 
 .custom-dynamic-image-container .dynamic-responsive-img {
-  display: block !important;
-  width: 100% !important;
-  height: auto !important;
-  object-fit: contain !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-  border: none !important;
-  opacity: var(--dynamic-image-opacity) !important;
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  box-shadow: none;
+  border-radius: 0;
+  border: none;
+  opacity: var(--dynamic-image-opacity);
 }
 
 /* --- ВОДЯНОЙ ЗНАК WOLF STUDIO (ПРАВЫЙ НИЖНИЙ УГОЛ) ----------------------- */
 .custom-wolf-watermark-bottom {
-  display: block !important;
-  position: absolute !important;
-  bottom: 20px !important;
-  right: 20px !important;
-  width: 70px !important;
-  height: 70px !important;
-  z-index: 40 !important;
-  cursor: pointer !important;
-  overflow: hidden !important;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
+  display: block;
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 70px;
+  height: 70px;
+  z-index: 40;
+  cursor: pointer;
+  overflow: hidden;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 .custom-wolf-watermark-bottom .wolf-watermark-bg {
-  position: absolute !important;
-  top: 3px !important;
-  right: 3px !important;
-  width: 65px !important;
-  height: 65px !important;
-  object-fit: contain !important;
-  z-index: 1 !important;
-  animation: wolfWatermarkSpinner 4s linear infinite !important;
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 65px;
+  height: 65px;
+  object-fit: contain;
+  z-index: 1;
+  animation: wolfWatermarkSpinner 4s linear infinite;
 }
 
 @keyframes wolfWatermarkSpinner {
@@ -497,200 +572,426 @@ body.multiple-scenes.mobile #titleBar { left: 50px; }
 }
 
 .custom-wolf-watermark-bottom .wolf-watermark-icon {
-  position: absolute !important;
-  top: 8px !important;
-  right: 8px !important;
-  width: 54px !important;
-  height: 54px !important;
-  object-fit: contain !important;
-  z-index: 2 !important;
-  transition: transform 0.2s ease-in-out !important;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+  z-index: 2;
+  transition: transform 0.2s ease-in-out;
 }
 
 .no-touch .custom-wolf-watermark-bottom:hover .wolf-watermark-icon {
-  transform: scale(1.15) !important;
+  transform: scale(1.15);
 }
 
 /* --- IOS-ТУМБЛЕР ПЕРЕКЛЮЧЕНИЯ ОТДЕЛКИ И ПОДСКАЗКА ПОД НИМ ---------------- */
 .ios-switch-wrapper {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: flex-start !important;
-  gap: 5px !important;
-  position: absolute !important;
-  top: 48px !important;
-  left: 6px !important;
-  z-index: 35 !important;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  pointer-events: none !important;
-  transform-origin: left top !important;
-  scale: var(--dynamic-image-scale-pc) !important;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  position: absolute;
+  top: 48px;
+  left: 6px;
+  z-index: 35;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  pointer-events: none;
+  transform-origin: left top;
+  scale: var(--dynamic-image-scale-pc);
 }
 
 .ios-switch {
-  position: relative !important;
-  display: inline-block !important;
-  flex-shrink: 0 !important;
-  width: 42px !important;
-  height: 24px !important;
-  cursor: pointer !important;
-  pointer-events: auto !important;
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  width: 42px;
+  height: 24px;
+  cursor: pointer;
+  pointer-events: auto;
 }
 
 .ios-switch input {
-  opacity: 0 !important;
-  width: 0 !important;
-  height: 0 !important;
+  opacity: 0;
+  width: 0;
+  height: 0;
 }
 
 .ios-switch-slider {
-  position: absolute !important;
-  cursor: pointer !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  background-color: rgba(58, 68, 84, 0.65) !important;
-  border: 2px solid rgba(255, 255, 255, 1) !important;
-  transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  border-radius: 24px !important;
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(58, 68, 84, 0.65);
+  border: 2px solid rgba(255, 255, 255, 1);
+  transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 24px;
 }
 
 .ios-switch-slider:before {
-  position: absolute !important;
-  content: "" !important;
-  height: 20px !important;
-  width: 20px !important;
-  left: 1px !important;
-  bottom: 1px !important;
-  background-color: rgba(255, 255, 255, 1) !important;
-  transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  border-radius: 50% !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 1px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(255, 255, 255, 1);
+  transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .ios-switch input:checked + .ios-switch-slider {
-  background-color: rgba(52, 199, 89, 1) !important;
+  background-color: rgba(52, 199, 89, 1);
 }
 
 .ios-switch input:checked + .ios-switch-slider:before {
-  transform: translateX(18px) !important;
+  transform: translate(18px, -50%);
 }
 
 .ios-switch-label-box {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: flex-start !important;
-  gap: 3px !important;
-  margin-left: 13px !important;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  color: #ffffff !important;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-  font-size: 13px !important;
-  font-weight: 500 !important;
-  line-height: 1.2 !important;
-  white-space: nowrap !important;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85) !important;
-  pointer-events: none !important;
-  cursor: default !important;
-  transform-origin: 8px top !important;
-  scale: var(--switch-text-scale-pc) !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
-  transition: opacity 0.8s ease-in-out, visibility 0.8s ease-in-out !important;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  margin-left: 13px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  color: #ffffff;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+  pointer-events: none;
+  cursor: default;
+  transform-origin: 8px top;
+  scale: var(--switch-text-scale-pc);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.8s ease-in-out, visibility 0.8s ease-in-out;
 }
 
 .ios-switch-label-box.is-visible {
-  opacity: 1 !important;
-  visibility: visible !important;
+  opacity: 1;
+  visibility: visible;
 }
 
 .ios-switch-label-box.is-dismissed {
-  opacity: 0 !important;
-  visibility: hidden !important;
-  transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out !important;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
 }
 
 .hint-arrow-icon {
-  width: 16px !important;
-  height: 16px !important;
-  flex-shrink: 0 !important;
-  color: #ffffff !important;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.85)) !important;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: #ffffff;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.85));
 }
 
 /* --- АДАПТИВНОСТЬ ДЛЯ СМАРТФОНОВ (.mobile) --------------------------------- */
 .mobile .custom-zhk-top-round {
-  width: 50px !important;
-  height: 50px !important;
+  width: 50px;
+  height: 50px;
 }
 
 .mobile .custom-dynamic-image-container {
-  top: 58px !important;
-  max-width: none !important;
-  width: auto !important;
-  scale: var(--dynamic-image-scale-mobile) !important;
+  top: 58px;
+  max-width: none;
+  width: auto;
+  scale: var(--dynamic-image-scale-mobile);
 }
 
 .mobile .custom-wolf-watermark-bottom {
-  bottom: 15px !important;
-  right: 15px !important;
-  width: 60px !important;
-  height: 60px !important;
+  bottom: 15px;
+  right: 15px;
+  width: 60px;
+  height: 60px;
 }
 
 .mobile .custom-wolf-watermark-bottom .wolf-watermark-bg {
-  top: 5px !important;
-  right: 5px !important;
-  width: 50px !important;
-  height: 50px !important;
+  top: 5px;
+  right: 5px;
+  width: 50px;
+  height: 50px;
 }
 
 .mobile .custom-wolf-watermark-bottom .wolf-watermark-icon {
-  top: 8px !important;
-  right: 8px !important;
-  width: 44px !important;
-  height: 44px !important;
+  top: 8px;
+  right: 8px;
+  width: 44px;
+  height: 44px;
 }
 
 .mobile .ios-switch-wrapper {
-  scale: 1.4 !important;
-  top: 65px !important;
-  left: 6px !important;
-  gap: 5px !important;
-  padding: 0 !important;
+  scale: 1.4;
+  top: 65px;
+  left: 6px;
+  gap: 5px;
+  padding: 0;
 }
 
 .mobile .ios-switch {
-  width: 36px !important;
-  height: 20px !important;
+  width: 36px;
+  height: 20px;
 }
 
 .mobile .ios-switch-slider:before {
-  height: 16px !important;
-  width: 16px !important;
-  left: 1px !important;
-  bottom: 0px !important;
+  height: 14px;
+  width: 14px;
+  left: 1px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .mobile .ios-switch input:checked + .ios-switch-slider:before {
-  transform: translateX(15px) !important;
+  transform: translate(16px, -50%);
 }
 
 .mobile .ios-switch-label-box {
-  scale: var(--switch-text-scale-mobile) !important;
-  font-size: 12px !important;
-  margin-left: 10px !important;
+  scale: var(--switch-text-scale-mobile);
+  font-size: 12px;
+  margin-left: 10px;
 }
 
 @media (max-width: 768px) {
   .custom-dynamic-image-container {
-    max-width: none !important;
+    max-width: none;
   }
+}
+
+.ios-switch-wrapper.is-hidden {
+  display: none !important;
+}
+
+/* ==========================================================================
+   ЧАСТЬ 5: ИНФОРМАЦИОННЫЕ ЗНАЧКИ (INFO HOTSPOTS) И КАРТОЧКИ
+   ========================================================================== */
+.info-hotspot {
+  width: var(--info-hotspot-size-desktop);
+  height: var(--info-hotspot-size-desktop);
+  margin-left: calc(var(--info-hotspot-size-desktop) / -2);
+  margin-top: calc(var(--info-hotspot-size-desktop) / -2);
+  z-index: 15;
+  cursor: pointer;
+}
+
+.mobile .info-hotspot {
+  width: var(--info-hotspot-size-mobile);
+  height: var(--info-hotspot-size-mobile);
+  margin-left: calc(var(--info-hotspot-size-mobile) / -2);
+  margin-top: calc(var(--info-hotspot-size-mobile) / -2);
+}
+
+.info-hotspot.is-open {
+  z-index: 90;
+}
+
+.info-hotspot-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.55));
+  transition: transform 0.2s ease-in-out;
+}
+
+.no-touch .info-hotspot:hover .info-hotspot-icon {
+  transform: scale(1.15);
+}
+
+/* Режим ярлыка (openMode: "link") */
+.info-hotspot-tag {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  background: rgba(20, 25, 35, 0.88);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+
+/* Режим карточки (openMode: "card") */
+.info-hotspot-card {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 12px);
+  transform: translateX(-50%) translateY(6px);
+  width: 260px;
+  max-width: 80vw;
+  background: rgba(20, 25, 35, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 10px;
+  padding: 14px 16px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+  cursor: default;
+}
+
+.info-hotspot.is-open .info-hotspot-card {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+.info-hotspot-close {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 5px;
+}
+
+.info-hotspot-close:hover {
+  color: #ff5252;
+}
+
+.info-hotspot-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  padding-right: 18px;
+  line-height: 1.3;
+  user-select: text;
+}
+
+.info-hotspot-text {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 10px;
+  white-space: pre-line;
+  user-select: text;
+}
+
+.info-hotspot-btn {
+  display: inline-block;
+  background: #007bff;
+  color: #ffffff !important;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 5px;
+  transition: background-color 0.2s;
+}
+
+.info-hotspot-btn:hover {
+  background: #0062cc;
+}
+
+/* --- КНОПКА ПОЛНОЭКРАННОГО РЕЖИМА ----------------------------------------- */
+.fullscreen-btn {
+  position: absolute;
+  bottom: 102px;
+  right: 35px;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(20, 25, 35, 0.65);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.no-touch .fullscreen-btn:hover {
+  background-color: rgba(45, 55, 72, 0.9);
+  transform: scale(1.06);
+}
+
+.fullscreen-btn svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+.fullscreen-btn .fs-icon-exit { display: none; }
+.fullscreen-btn.is-fullscreen .fs-icon-enter { display: none; }
+.fullscreen-btn.is-fullscreen .fs-icon-exit { display: block; }
+
+.mobile .fullscreen-btn {
+  bottom: 85px;
+  right: 25px;
+  width: 40px;
+  height: 40px;
+}
+
+/* --- КНОПКА ГИРОСКОПА (МОБИЛЬНЫЕ УСТРОЙСТВА) ---------------------------- */
+.gyroscope-btn {
+  position: absolute;
+  bottom: 102px;
+  right: 35px;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(20, 25, 35, 0.65);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.gyroscope-btn svg {
+  width: 21px;
+  height: 21px;
+  display: block;
+}
+
+.gyroscope-btn.is-active {
+  background-color: rgba(0, 123, 255, 0.88);
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 14px rgba(0, 123, 255, 0.65);
+}
+
+.mobile .gyroscope-btn {
+  bottom: 85px;
+  right: 25px;
+}
+
+/* Вспомогательный класс скрытия блоков интерфейса */
+.is-hidden {
+  display: none !important;
 }

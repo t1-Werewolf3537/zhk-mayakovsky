@@ -1,21 +1,28 @@
 <!DOCTYPE html>
+<!--
+  =============================================================================
+  © 2026 Wolf Studio (https://wolf-studio.ru) | Кирилл Бахарев. Все права защищены.
+  Программный код, структура, дизайн и движок WolfTour Engine являются объектом
+  авторского права. Любое копирование, модификация, распространение, декомпиляция
+  или размещение на сторонних сайтах и серверах без письменного согласия
+  правообладателя строго запрещены и преследуются по закону (ст. 1259, 1301 ГК РФ).
+  =============================================================================
+-->
 <html lang="ru">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui" />
-  <style> @-ms-viewport { width: device-width; } </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
   
-  <title>ЖК "Маяковский" 3D-тур по 1-комнатной квартире | Кирилл Бахарев</title>  
-  <meta name="description" content="3D-тур по квартире в ЖК «Маяковский» 1-комнатная квартира (39 кв.м). Профессиональная 3D-визуализация интерьера | Кирилл Бахарев" />
+  <title>ЖК &quot;Маяковский&quot; 3D-тур по 1-комнатной квартире  - 39м² | Кирилл Бахарев</title>  
+  <meta name="description" content="3D-тур по квартире в ЖК «Маяковский» 1-комнатная квартира (39 кв.м). Профессиональная 3D-визуализация интерьера | Кирилл Бахарев">
 
   <!-- Open Graph для мессенджеров и соцсетей -->
   <meta property="og:type" content="website"> 
-  <meta property="og:title" content="3D-тур ЖК Маяковский | 1-комнатная квартира 39м²"> 
-  <meta property="og:description" content="Виртуальный тур по интерьеру квартиры | Кирилл Бахарев." /> 
-  <meta property="og:url" content="https://wolf-studio.ru"> 
-  <meta property="og:image" content="https://wolf-studio.ru">
+  <meta property="og:title" content="3D-тур ЖК WolfTour | 1-комнатная квартира 39м²"> 
+  <meta property="og:description" content="Виртуальный тур по интерьеру квартиры | Кирилл Бахарев."> 
+  <meta property="og:url" content="https://zhk-mayakovsky.wolf-studio.ru/tip1-1k39/"> 
+  <meta property="og:image" content="https://zhk-mayakovsky.wolf-studio.ru/tip1-1k39/img/preview.jpg">
 
-  <link rel="stylesheet" href="vendor/reset.min.css">
   <link rel="stylesheet" href="style.css">
   <link rel="icon" type="image/png" href="../favicon.png">
 </head>
@@ -24,43 +31,74 @@
 
   <!-- Контейнер панорамы -->
   <div id="pano"></div>
+  <div id="demo-watermark-overlay" class="demo-watermark-layer" aria-hidden="true"></div>
+
+  <!-- Подсказка при прокрутке внутри iframe -->
+  <div id="iframe-scroll-hint" aria-hidden="true">
+    Кликните по 3D-туру или зажмите Ctrl для масштабирования
+  </div>
 
   <!-- Выезжающее меню выбора других квартир -->
   <div id="sceneList">
     <ul class="scenes">
-      <a href="https://zhk-mayakovsky.wolf-studio.ru/tip1-s30/" class="scene">
-        <li class="text">Студия - 30м²</li>
-      </a>
-      <a href="https://zhk-mayakovsky.wolf-studio.ru/tip1-2k70/" class="scene">
-        <li class="text">2-к. квартира - 70м²</li>
-      </a>
-      <a href="https://zhk-mayakovsky.wolf-studio.ru/tip1-3k80/" class="scene">
-        <li class="text">3-к. квартира - 80м²</li>
-      </a>
+      <li class="scene">
+        <a href="https://zhk-mayakovsky.wolf-studio.ru/tip1-s30/" class="text">Студия - 30м²</a>
+      </li>
+      <li class="scene">
+        <a href="https://zhk-mayakovsky.wolf-studio.ru/tip1-2k70/" class="text">2к. квартира - 70м²</a>
+      </li>
+      <li class="scene">
+        <a href="https://zhk-mayakovsky.wolf-studio.ru/tip1-3k80/" class="text">3к. квартира - 80м²</a>
+      </li>
     </ul>
   </div>
 
   <!-- Верхняя плашка с названием -->
   <div id="titleBar">
-    <h1 class="sceneName"></h1>
+    <h1 class="sceneName">1-КОМНАТНАЯ | 39м²</h1>
   </div>
 
   <!-- Кнопка открытия меню квартир -->
-  <a href="javascript:void(0)" id="sceneListToggle">
+  <a href="javascript:void(0)" id="sceneListToggle" aria-label="Меню выбора квартир">
     <img class="icon off" src="img/expand.png" alt="Открыть меню">
     <img class="icon on" src="img/collapse.png" alt="Закрыть меню">
   </a>
 
   <!-- Логотип застройщика и текстовый баннер -->
-  <a href="https://mayakovsky42.ru" target="_blank" class="custom-zhk-top-round">
+  <a href="https://mayakovsky42.ru/" target="_blank" rel="noopener noreferrer" class="custom-zhk-top-round">
     <img src="img/logo_zhk.png" alt="ЖК Маяковский" class="zhk-round-img">
   </a>
   <div class="custom-dynamic-image-container">
     <img src="img/text_zhk.png" class="dynamic-responsive-img" alt="ЖК Маяковский">
   </div>
 
+  <!-- Кнопка гироскопа (управляется через ENABLE_GYROSCOPE на мобильных) -->
+  <button type="button" id="gyroscope-toggle-btn" class="gyroscope-btn is-hidden" title="Управление гироскопом" aria-label="Управление гироскопом">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9"></circle>
+      <ellipse cx="12" cy="12" rx="9" ry="3.8"></ellipse>
+      <ellipse cx="12" cy="12" rx="3.8" ry="9"></ellipse>
+    </svg>
+  </button>
+
+  <!-- Кнопка полноэкранного режима (управляется через ENABLE_FULLSCREEN) -->
+  <button type="button" id="fullscreen-toggle-btn" class="fullscreen-btn" title="На полный экран" aria-label="На полный экран">
+    <svg class="fs-icon-enter" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 3 21 3 21 9"></polyline>
+      <polyline points="9 21 3 21 3 15"></polyline>
+      <line x1="21" y1="3" x2="14" y2="10"></line>
+      <line x1="3" y1="21" x2="10" y2="14"></line>
+    </svg>
+    <svg class="fs-icon-exit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="4 14 10 14 10 20"></polyline>
+      <polyline points="20 10 14 10 14 4"></polyline>
+      <line x1="14" y1="10" x2="21" y2="3"></line>
+      <line x1="3" y1="21" x2="10" y2="14"></line>
+    </svg>
+  </button>
+
   <!-- Водяной знак Wolf Studio -->
-  <a href="https://wolf-studio.ru" target="_blank" class="custom-wolf-watermark-bottom">
+  <a href="https://wolf-studio.ru" target="_blank" rel="noopener noreferrer" class="custom-wolf-watermark-bottom">
     <img src="img/circle.png" class="wolf-watermark-bg" alt="">
     <img src="img/site.png" class="wolf-watermark-icon" alt="Wolf Studio">
   </a>
@@ -80,7 +118,7 @@
   <!-- iOS-переключатель варианта отделки -->
   <div class="ios-switch-wrapper">
     <label class="ios-switch">
-      <input type="checkbox" id="finish-variant-toggle-btn">
+      <input type="checkbox" id="finish-variant-toggle-btn" aria-label="Переключить вариант отделки">
       <span class="ios-switch-slider"></span>
     </label>
     <div id="finish-variant-hint" class="ios-switch-label-box">
@@ -93,21 +131,9 @@
   </div>
 
   <!-- Скрипты -->
-  <script src="vendor/bowser.min.js"></script>
-  <script src="vendor/marzipano.js"></script>
+  <script src="vendor/wolftour.js"></script>
   <script src="data.js"></script>
   <script src="index.js"></script>
-
-  <!-- SEO-блок -->
-  <div style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap;">
-    <h2>3D-тур по квартире в ЖК «Маяковский» 1-комнатная 39м²</h2>
-    <p>Интерактивный виртуальный 3D-тур по 1-комнатной квартире площадью 39 м² в ЖК «Маяковский» город Новокузнецк. Профессиональная 3D-визуализация интерьера, разработчик | Кирилл Бахарев.</p>
-    <p>Интерактивная панорама позволяет оценить эргономику и расстановку мебели именно этой 1-комнатной квартиры площадью 39м² у застройщика ЖК "Маяковский". Рассмотрите детали в 3D-туре.</p>
-    <h3>Другие планировки квартир в ЖК «Маяковский» Новокузнецк:</h3>
-    <ul>
-      <li><a href="https://mayakovsky42.ru">ЖК "Маяковский" г. Новокузнецк</a></li>
-    </ul>
-  </div>
 
 </body>
 </html>
