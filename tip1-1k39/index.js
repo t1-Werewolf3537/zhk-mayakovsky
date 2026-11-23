@@ -53,7 +53,7 @@
   var TILES_URL = "tiles";          // Путь к тайлам: "tiles" или ссылка на Яндекс Облако (без слеша на конце)
   var CAMERA_DRAG_SPEED = 0.65;     // Скорость вращения камеры (0.3 - плавно, 1.0 - стандарт)
   var CAMERA_INERTIA = 4.5;         // Затухание инерции (2.0 - длинный докат, 8.0 - быстрая остановка)
-  var RADAR_ANGLE_OFFSET = 180;     // Базовый угол поворота луча радара (0 - 360 градусов)
+  var RADAR_ANGLE_OFFSET = 270;     // Базовый угол поворота луча радара (0 - 360 градусов)
   // =========================================================================
 
   var isWhiteStyle = Boolean(START_WITH_REPAIR);
@@ -130,38 +130,21 @@
       viewer.setScrollLocked(true);
     });
   }
-  // Защита от свайпа «Назад» (для браузеров, где это доступно) и системного зума
-  var isInteractiveEl = function(target) {
-    return target && target.closest(
-      'a, button, label, input, #sceneList, #sceneListToggle, .custom-zhk-top-round, #mini-map-wrapper, .link-hotspot, .info-hotspot'
-    );
-  };
+  document.addEventListener('touchstart', function(e) {
+    if (e.target && e.target.closest('a, button, label, input, #sceneListToggle, .custom-zhk-top-round, #mini-map-close-btn')) {
+      return;
+    }
+    if (e.touches && e.touches.length === 1) {
+      var x = e.touches[0].clientX;
+      if (x < 30 || x > window.innerWidth - 30) {
+        if (e.cancelable) e.preventDefault();
+      }
+    }
+  }, { passive: false });
 
-  window.addEventListener('touchstart', function(e) {
-    if (isInteractiveEl(e.target)) return;
+  panoElement.addEventListener('touchmove', function(e) {
     if (e.cancelable) e.preventDefault();
-  }, { passive: false, capture: true });
-
-  window.addEventListener('touchmove', function(e) {
-    if (e.target && e.target.closest('#sceneList, .info-hotspot-card')) return;
-    if (e.cancelable) e.preventDefault();
-  }, { passive: false, capture: true });
-
-  ['gesturestart', 'gesturechange', 'gestureend'].forEach(function(evtName) {
-    window.addEventListener(evtName, function(e) {
-      if (e.cancelable) e.preventDefault();
-    }, { passive: false, capture: true });
-  });
-
-  // Страховка от системного жеста «Назад» (блокирует выход со страницы при срабатывании history.back)
-  if (!isInIframe && window.history && window.history.pushState) {
-    try {
-      window.history.pushState({ wolftourGuard: true }, '', window.location.href);
-      window.addEventListener('popstate', function() {
-        window.history.pushState({ wolftourGuard: true }, '', window.location.href);
-      });
-    } catch (e) {}
-  }
+  }, { passive: false });
 
 
   // Создание сцен (preview.jpg грузится сразу только для стартовой сцены, остальные — в фоне)
@@ -330,16 +313,13 @@
         pointEl.style.left = sceneData.mapCoords.left;
         pointEl.style.top = sceneData.mapCoords.top;
 
-        var activatePoint = function(event) {
+        pointEl.addEventListener('click', function(event) {
           event.stopPropagation();
-          if (event.cancelable) event.preventDefault();
           var targetScene = findSceneById(sceneData.id);
           if (targetScene) {
             switchScene(targetScene, KEEP_VIEW_ANGLE);
           }
-        };
-        pointEl.addEventListener('pointerup', activatePoint);
-        pointEl.addEventListener('click', activatePoint);
+        });
 
         pointsContainer.appendChild(pointEl);
       }
