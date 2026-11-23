@@ -130,10 +130,10 @@
       viewer.setScrollLocked(true);
     });
   }
-  // Максимальная защита от свайпа «Назад», pull-to-refresh и системного зума на iOS и Android
+  // Защита от свайпа «Назад» (для браузеров, где это доступно) и системного зума
   var isInteractiveEl = function(target) {
     return target && target.closest(
-      'a, button, label, input, #sceneList, #sceneListToggle, .custom-zhk-top-round, #mini-map-close-btn, .map-nav-point, .link-hotspot, .info-hotspot'
+      'a, button, label, input, #sceneList, #sceneListToggle, .custom-zhk-top-round, #mini-map-wrapper, .link-hotspot, .info-hotspot'
     );
   };
 
@@ -330,13 +330,16 @@
         pointEl.style.left = sceneData.mapCoords.left;
         pointEl.style.top = sceneData.mapCoords.top;
 
-        pointEl.addEventListener('click', function(event) {
+        var activatePoint = function(event) {
           event.stopPropagation();
+          if (event.cancelable) event.preventDefault();
           var targetScene = findSceneById(sceneData.id);
           if (targetScene) {
             switchScene(targetScene, KEEP_VIEW_ANGLE);
           }
-        });
+        };
+        pointEl.addEventListener('pointerup', activatePoint);
+        pointEl.addEventListener('click', activatePoint);
 
         pointsContainer.appendChild(pointEl);
       }
