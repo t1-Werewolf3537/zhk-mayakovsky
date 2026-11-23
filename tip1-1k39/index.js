@@ -131,18 +131,16 @@
     });
   }
   document.addEventListener('touchstart', function(e) {
-    if (e.target && e.target.closest('a, button, label, input, #sceneListToggle, .custom-zhk-top-round, #mini-map-close-btn')) {
+    if (e.target && e.target.closest('a, button, label, input, #sceneList, #sceneListToggle, .custom-zhk-top-round, #mini-map-close-btn, .map-nav-point, .info-hotspot')) {
       return;
     }
-    if (e.touches && e.touches.length === 1) {
-      var x = e.touches[0].clientX;
-      if (x < 30 || x > window.innerWidth - 30) {
-        if (e.cancelable) e.preventDefault();
-      }
-    }
+    if (e.cancelable) e.preventDefault();
   }, { passive: false });
 
-  panoElement.addEventListener('touchmove', function(e) {
+  document.addEventListener('touchmove', function(e) {
+    if (e.target && e.target.closest('#sceneList, .info-hotspot-card')) {
+      return;
+    }
     if (e.cancelable) e.preventDefault();
   }, { passive: false });
 
