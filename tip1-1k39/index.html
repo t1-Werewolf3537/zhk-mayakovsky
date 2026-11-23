@@ -31,6 +31,18 @@
 
   <!-- Контейнер панорамы -->
   <div id="pano"></div>
+  <div id="repair-compare-slider" class="compare-slider is-hidden" aria-label="Сравнение До и После ремонта">
+    <div class="compare-slider-line"></div>
+    <div class="compare-slider-handle" id="repair-compare-handle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 3 12 9 6"></polyline>
+        <polyline points="15 6 21 12 15 18"></polyline>
+      </svg>
+    </div>
+    <div class="compare-slider-hint" id="repair-compare-hint">
+      Потяните шторку
+    </div>
+  </div>
   <div id="demo-watermark-overlay" class="demo-watermark-layer" aria-hidden="true"></div>
 
   <!-- Подсказка при прокрутке внутри iframe -->
@@ -104,6 +116,15 @@
   </a>
 
   <!-- Мини-карта планировки -->
+  <div id="mini-map-hint" class="map-open-hint-box">
+    <span>Навигация по планировке</span>
+    <span class="hint-arrow-wrap">
+      <svg class="hint-arrow-icon hint-arrow-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <polyline points="5 12 12 19 19 12"></polyline>
+      </svg>
+    </span>
+  </div>
   <button id="mini-map-toggle-btn" class="map-open-button">Планировка</button>
 
   <div id="mini-map-wrapper">
@@ -122,10 +143,12 @@
       <span class="ios-switch-slider"></span>
     </label>
     <div id="finish-variant-hint" class="ios-switch-label-box">
-      <svg class="hint-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="12" y1="19" x2="12" y2="5"></line>
-        <polyline points="5 12 12 5 19 12"></polyline>
-      </svg>
+      <span class="hint-arrow-wrap">
+        <svg class="hint-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="19" x2="12" y2="5"></line>
+          <polyline points="5 12 12 5 19 12"></polyline>
+        </svg>
+      </span>
       <span>Посмотрите проект с ремонтом</span>
     </div>
   </div>

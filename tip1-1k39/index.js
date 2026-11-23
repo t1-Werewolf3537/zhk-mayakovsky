@@ -35,8 +35,13 @@
   // =========================================================================
   // ГЛАВНЫЕ НАСТРОЙКИ ПРОЕКТА
   // =========================================================================
-  var ENABLE_REPAIR_SWITCH = true; // true = тумблер отделки включен, false = полностью скрыт
+  var ENABLE_REPAIR_SWITCH = true; // true = сравнение отделки включено, false = полностью скрыто
+  var REPAIR_COMPARE_MODE = "switch"; // "slider" = шторка До/После на экране, "switch" = iOS-тумблер
+  var ENABLE_SWITCH_HINT = true;   // true = показывать подсказку под iOS-тумблером, false = скрыть
   var ENABLE_MINIMAP = true;        // true = планировка включена, false = полностью скрыта
+  var ENABLE_MINIMAP_HINT = true;  // true = показывать подсказку над кнопкой «Планировка», false = скрыть
+  var MINIMAP_OPEN_DESKTOP = false; // true = планировка сразу открыта на ПК, false = свёрнута
+  var MINIMAP_OPEN_MOBILE = false;  // true = планировка сразу открыта на мобильных, false = свёрнута
   var ENABLE_FULLSCREEN = false;    // true = кнопка полноэкранного режима включена, false = скрыта
   var ENABLE_GYROSCOPE = true;     // true = кнопка гироскопа включена на мобильных, false = скрыта
   var ENABLE_DEMO_WATERMARK = false; // true = тестовая сетка поверх панорамы (для демо заказчику)
@@ -125,6 +130,18 @@
       viewer.setScrollLocked(true);
     });
   }
+  document.addEventListener('touchstart', function(e) {
+    if (e.target && e.target.closest('a, button, label, input, #sceneListToggle, .custom-zhk-top-round, #mini-map-close-btn')) {
+      return;
+    }
+    if (e.touches && e.touches.length === 1) {
+      var x = e.touches[0].clientX;
+      if (x < 30 || x > window.innerWidth - 30) {
+        if (e.cancelable) e.preventDefault();
+      }
+    }
+  }, { passive: false });
+
   panoElement.addEventListener('touchmove', function(e) {
     if (e.cancelable) e.preventDefault();
   }, { passive: false });
@@ -223,11 +240,28 @@
     return scene;
   }
 
+  // Поиск пары сцен (базовая + _REPAIR) по имени
+  function getScenePair(scene) {
+    if (!scene) return { base: null, repair: null };
+    var baseName = scene.data.name.replace('_REPAIR', '');
+    var baseSc = null, repairSc = null;
+    for (var i = 0; i < scenes.length; i++) {
+      if (scenes[i].data.name === baseName) baseSc = scenes[i];
+      if (scenes[i].data.name === baseName + '_REPAIR') repairSc = scenes[i];
+    }
+    return { base: baseSc || scene, repair: repairSc };
+  }
+
+  var isSliderModeActive = Boolean(ENABLE_REPAIR_SWITCH && REPAIR_COMPARE_MODE === 'slider');
+  var currentSplitRatio = 0.5;
+
   // Переключение сцен
   function switchScene(scene, keepViewAngle) {
     if (!scene) return;
 
-    var finalScene = resolveSceneVariant(scene);
+    var pair = getScenePair(scene);
+    var finalScene = isSliderModeActive ? pair.base : resolveSceneVariant(scene);
+    var compareTarget = (isSliderModeActive && pair.repair && pair.repair !== finalScene) ? pair.repair : null;
     var currentView = viewer.view();
 
     if (keepViewAngle && currentView && finalScene.view) {
@@ -241,6 +275,9 @@
     }
 
     finalScene.scene.switchTo();
+    if (viewer.setCompareScene) {
+      viewer.setCompareScene(compareTarget ? compareTarget.scene : null, currentSplitRatio);
+    }
     syncRadarAngle(finalScene.view);
 
     if (sceneNameElement) {
@@ -402,10 +439,14 @@
   }
   // Запуск стартовой сцены с проверкой границ массива
   var baseStartScene = scenes[START_SCENE_INDEX] || scenes[0];
-  var startScene = resolveSceneVariant(baseStartScene);
+  var startPair = getScenePair(baseStartScene);
+  var startScene = isSliderModeActive ? startPair.base : resolveSceneVariant(baseStartScene);
 
   if (startScene) {
     startScene.scene.switchTo();
+    if (isSliderModeActive && startPair.repair && startPair.repair !== startScene && viewer.setCompareScene) {
+      viewer.setCompareScene(startPair.repair.scene, currentSplitRatio);
+    }
     if (sceneNameElement) {
       sceneNameElement.textContent = APARTMENT_TITLE;
     }
@@ -418,15 +459,86 @@
   }
   hideSceneList();
 
-  // Логика тумблера "Вариант отделки" и подсказки
+  // Логика сравнения отделки: Шторка (slider) или iOS-тумблер (switch)
   var switchWrapper = document.querySelector('.ios-switch-wrapper');
   var finishToggleInput = document.getElementById('finish-variant-toggle-btn');
   var mapImageEl = document.getElementById('mini-map-img');
   var hintBox = document.getElementById('finish-variant-hint');
+  var compareSliderEl = document.getElementById('repair-compare-slider');
+  var compareHandleEl = document.getElementById('repair-compare-handle');
+  var compareHintEl = document.getElementById('repair-compare-hint');
 
   if (!ENABLE_REPAIR_SWITCH) {
     if (switchWrapper) switchWrapper.style.display = 'none';
+    if (hintBox) hintBox.style.display = 'none';
+    if (compareSliderEl) compareSliderEl.classList.add('is-hidden');
     if (mapImageEl) mapImageEl.src = 'img/plan.jpg';
+  } else if (isSliderModeActive) {
+    if (switchWrapper) switchWrapper.style.display = 'none';
+    if (hintBox) hintBox.style.display = 'none';
+    if (mapImageEl) mapImageEl.src = 'img/plan_REPAIR.jpg';
+    if (compareSliderEl && compareHandleEl) {
+      compareSliderEl.classList.remove('is-hidden');
+      compareSliderEl.classList.add('is-pulsing');
+      compareSliderEl.style.left = (currentSplitRatio * 100) + '%';
+
+      var hideCompareHint = function() {
+        if (compareHintEl) compareHintEl.classList.remove('is-visible');
+      };
+      if (compareHintEl) {
+        requestAnimationFrame(function() {
+          compareHintEl.classList.add('is-visible');
+        });
+        setTimeout(hideCompareHint, 3200);
+      }
+
+      var lastPlanSrc = 'img/plan_REPAIR.jpg';
+      var draggingSlider = false;
+      var updateSliderByClientX = function(clientX) {
+        var rect = panoElement.getBoundingClientRect();
+        var ratio = (clientX - rect.left) / Math.max(1, rect.width);
+        currentSplitRatio = Math.max(0, Math.min(1, ratio));
+        compareSliderEl.style.left = (currentSplitRatio * 100).toFixed(2) + '%';
+        if (viewer.setSplitRatio) viewer.setSplitRatio(currentSplitRatio);
+
+        if (mapImageEl) {
+          var nextPlan = currentSplitRatio > 0.5 ? 'img/plan.jpg' : 'img/plan_REPAIR.jpg';
+          if (nextPlan !== lastPlanSrc) {
+            lastPlanSrc = nextPlan;
+            mapImageEl.src = nextPlan;
+          }
+        }
+      };
+
+      compareHandleEl.addEventListener('touchstart', function(e) {
+        if (e.cancelable) e.preventDefault();
+      }, { passive: false });
+      compareHandleEl.addEventListener('touchmove', function(e) {
+        if (e.cancelable) e.preventDefault();
+      }, { passive: false });
+
+      compareHandleEl.addEventListener('pointerdown', function(e) {
+        e.stopPropagation();
+        if (e.cancelable) e.preventDefault();
+        draggingSlider = true;
+        compareSliderEl.classList.remove('is-pulsing');
+        compareSliderEl.classList.add('is-dragging');
+        compareHandleEl.setPointerCapture(e.pointerId);
+        hideCompareHint();
+      });
+      compareHandleEl.addEventListener('pointermove', function(e) {
+        if (!draggingSlider) return;
+        e.stopPropagation();
+        updateSliderByClientX(e.clientX);
+      });
+      var endSliderDrag = function(e) {
+        if (!draggingSlider) return;
+        draggingSlider = false;
+        compareSliderEl.classList.remove('is-dragging');
+      };
+      compareHandleEl.addEventListener('pointerup', endSliderDrag);
+      compareHandleEl.addEventListener('pointercancel', endSliderDrag);
+    }
   } else {
     var syncInterfaceStyle = function() {
       if (!finishToggleInput) return;
@@ -439,14 +551,16 @@
     syncInterfaceStyle();
 
     if (finishToggleInput) {
-      var showTimer = null;
-
-      if (hintBox) {
-        showTimer = setTimeout(function() {
-          if (!finishToggleInput.checked && !hintBox.classList.contains('is-dismissed')) {
-            hintBox.classList.add('is-visible');
-          }
-        }, 6000);
+      if (hintBox && !ENABLE_SWITCH_HINT) {
+        hintBox.style.display = 'none';
+      } else if (hintBox && !finishToggleInput.checked) {
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            if (!finishToggleInput.checked && !hintBox.classList.contains('is-dismissed')) {
+              hintBox.classList.add('is-visible');
+            }
+          });
+        });
       }
 
       finishToggleInput.addEventListener('change', function(event) {
@@ -454,8 +568,7 @@
 
         isWhiteStyle = this.checked;
 
-        if (isWhiteStyle && hintBox) {
-          clearTimeout(showTimer);
+        if (hintBox && !hintBox.classList.contains('is-dismissed')) {
           hintBox.classList.remove('is-visible');
           hintBox.classList.add('is-dismissed');
         }
@@ -492,11 +605,14 @@
     syncRadarAngle(startScene.view);
   }
 
+  var mapHintBox = document.getElementById('mini-map-hint');
+
   if (!ENABLE_MINIMAP) {
     var btnMap = document.getElementById('mini-map-toggle-btn');
     var wrapMap = document.getElementById('mini-map-wrapper');
     if (btnMap) btnMap.style.display = 'none';
     if (wrapMap) wrapMap.style.display = 'none';
+    if (mapHintBox) mapHintBox.style.display = 'none';
   }
 
   // Сворачивание и разворачивание мини-карты
@@ -505,10 +621,32 @@
   var mapCloseBtn = document.getElementById('mini-map-close-btn');
 
   if (mapOpenBtn && mapWrapper && mapCloseBtn) {
+    var isMobileDevice = document.body.classList.contains('mobile');
+    var shouldOpenMap = ENABLE_MINIMAP && (isMobileDevice ? MINIMAP_OPEN_MOBILE : MINIMAP_OPEN_DESKTOP);
+    if (shouldOpenMap || !ENABLE_MINIMAP_HINT) {
+      if (shouldOpenMap) {
+        mapOpenBtn.classList.add('hidden-state');
+        mapWrapper.classList.add('active-state');
+      }
+      if (mapHintBox) mapHintBox.style.display = 'none';
+    } else if (ENABLE_MINIMAP && mapHintBox) {
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          if (!mapHintBox.classList.contains('is-dismissed')) {
+            mapHintBox.classList.add('is-visible');
+          }
+        });
+      });
+    }
+
     mapOpenBtn.addEventListener('click', function(event) {
       event.stopPropagation();
       mapOpenBtn.classList.add('hidden-state');
       mapWrapper.classList.add('active-state');
+      if (mapHintBox && !mapHintBox.classList.contains('is-dismissed')) {
+        mapHintBox.classList.remove('is-visible');
+        mapHintBox.classList.add('is-dismissed');
+      }
     });
 
     mapCloseBtn.addEventListener('click', function(event) {
