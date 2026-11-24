@@ -45,6 +45,7 @@
   var ENABLE_FULLSCREEN = false;    // true = кнопка полноэкранного режима включена, false = скрыта
   var ENABLE_GYROSCOPE = true;     // true = кнопка гироскопа включена на мобильных, false = скрыта
   var ENABLE_DEMO_WATERMARK = false; // true = тестовая сетка поверх панорамы (для демо заказчику)
+  var ENABLE_START_HINT = true;     // true = показывать стартовую подсказку управления, false = скрыть
   var SMART_SCROLL = true;          // true = умный скролл в iframe (зум после клика или с Ctrl)
   var START_WITH_REPAIR = false;    // true = старт с ремонтом (_REPAIR), false = без ремонта
   var START_SCENE_INDEX = 2;        // Индекс стартовой сцены (нумерация с 0)
@@ -53,7 +54,7 @@
   var TILES_URL = "tiles";          // Путь к тайлам: "tiles" или ссылка на Яндекс Облако (без слеша на конце)
   var CAMERA_DRAG_SPEED = 0.65;     // Скорость вращения камеры (0.3 - плавно, 1.0 - стандарт)
   var CAMERA_INERTIA = 4.5;         // Затухание инерции (2.0 - длинный докат, 8.0 - быстрая остановка)
-  var RADAR_ANGLE_OFFSET = 270;     // Базовый угол поворота луча радара (0 - 360 градусов)
+  var RADAR_ANGLE_OFFSET = 180;     // Базовый угол поворота луча радара (0 - 360 градусов)
   // =========================================================================
 
   var isWhiteStyle = Boolean(START_WITH_REPAIR);
@@ -130,21 +131,30 @@
       viewer.setScrollLocked(true);
     });
   }
-  document.addEventListener('touchstart', function(e) {
-    if (e.target && e.target.closest('a, button, label, input, #sceneListToggle, .custom-zhk-top-round, #mini-map-close-btn')) {
+  var historyGuardArmed = false;
+
+  var armHistoryGuard = function() {
+    if (historyGuardArmed || isInIframe || !window.history || !window.history.pushState) return;
+    historyGuardArmed = true;
+    try {
+      window.history.pushState({ wolftourGuard: true }, '', window.location.href);
+      window.addEventListener('popstate', function() {
+        window.history.pushState({ wolftourGuard: true }, '', window.location.href);
+      });
+    } catch (e) {}
+  };
+
+  window.addEventListener('touchstart', function(e) {
+    armHistoryGuard();
+    // Не вызываем preventDefault() в touchstart — в Chrome на iOS это передаёт свайп браузеру
+  }, { passive: true, capture: true });
+
+  window.addEventListener('touchmove', function(e) {
+    if (e.target && e.target.closest('#sceneList')) {
       return;
     }
-    if (e.touches && e.touches.length === 1) {
-      var x = e.touches[0].clientX;
-      if (x < 30 || x > window.innerWidth - 30) {
-        if (e.cancelable) e.preventDefault();
-      }
-    }
-  }, { passive: false });
-
-  panoElement.addEventListener('touchmove', function(e) {
     if (e.cancelable) e.preventDefault();
-  }, { passive: false });
+  }, { passive: false, capture: true });
 
 
   // Создание сцен (preview.jpg грузится сразу только для стартовой сцены, остальные — в фоне)
@@ -287,12 +297,14 @@
     // Перенос красной точки на мини-карте
     var mapDot = document.getElementById('mini-map-dot');
     if (mapDot && finalScene.data && finalScene.data.mapCoords) {
+      clearTimeout(mapDot._moveTimer);
+      clearTimeout(mapDot._showTimer);
       mapDot.classList.add('switching');
-      setTimeout(function() {
+      mapDot._moveTimer = setTimeout(function() {
         mapDot.style.left = finalScene.data.mapCoords.left;
         mapDot.style.top = finalScene.data.mapCoords.top;
       }, 150);
-      setTimeout(function() {
+      mapDot._showTimer = setTimeout(function() {
         mapDot.classList.remove('switching');
       }, 300);
     }
@@ -459,6 +471,24 @@
   }
   hideSceneList();
 
+  // Стартовая подсказка управления туром
+  var startControlsHint = document.getElementById('start-controls-hint');
+  var startControlsOkBtn = document.getElementById('start-controls-ok-btn');
+  if (startControlsHint && ENABLE_START_HINT) {
+    var dismissStartHint = function(e) {
+      if (e) e.stopPropagation();
+      startControlsHint.classList.remove('is-visible');
+    };
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        startControlsHint.classList.add('is-visible');
+      });
+    });
+    if (startControlsOkBtn) {
+      startControlsOkBtn.addEventListener('click', dismissStartHint, { once: true });
+    }
+  }
+
   // Логика сравнения отделки: Шторка (slider) или iOS-тумблер (switch)
   var switchWrapper = document.querySelector('.ios-switch-wrapper');
   var finishToggleInput = document.getElementById('finish-variant-toggle-btn');
@@ -466,7 +496,6 @@
   var hintBox = document.getElementById('finish-variant-hint');
   var compareSliderEl = document.getElementById('repair-compare-slider');
   var compareHandleEl = document.getElementById('repair-compare-handle');
-  var compareHintEl = document.getElementById('repair-compare-hint');
 
   if (!ENABLE_REPAIR_SWITCH) {
     if (switchWrapper) switchWrapper.style.display = 'none';
@@ -482,21 +511,11 @@
       compareSliderEl.classList.add('is-pulsing');
       compareSliderEl.style.left = (currentSplitRatio * 100) + '%';
 
-      var hideCompareHint = function() {
-        if (compareHintEl) compareHintEl.classList.remove('is-visible');
-      };
-      if (compareHintEl) {
-        requestAnimationFrame(function() {
-          compareHintEl.classList.add('is-visible');
-        });
-        setTimeout(hideCompareHint, 3200);
-      }
-
       var lastPlanSrc = 'img/plan_REPAIR.jpg';
       var draggingSlider = false;
-      var updateSliderByClientX = function(clientX) {
-        var rect = panoElement.getBoundingClientRect();
-        var ratio = (clientX - rect.left) / Math.max(1, rect.width);
+      var demoAnimId = null;
+
+      var applySplitRatio = function(ratio) {
         currentSplitRatio = Math.max(0, Math.min(1, ratio));
         compareSliderEl.style.left = (currentSplitRatio * 100).toFixed(2) + '%';
         if (viewer.setSplitRatio) viewer.setSplitRatio(currentSplitRatio);
@@ -510,6 +529,41 @@
         }
       };
 
+      var updateSliderByClientX = function(clientX) {
+        var rect = panoElement.getBoundingClientRect();
+        applySplitRatio((clientX - rect.left) / Math.max(1, rect.width));
+      };
+
+      var playSliderDemo = function() {
+        if (draggingSlider) return;
+        var duration = 4500;
+        var amplitude = 0.33; // ±22% от центра (от 28% до 72%)
+        var startTs = null;
+        var step = function(ts) {
+          if (draggingSlider) return;
+          if (!startTs) startTs = ts;
+          var t = Math.min(1, (ts - startTs) / duration);
+          // Полный период синуса: влево -> вправо -> возврат в центр (0.5)
+          var offset = -Math.sin(t * Math.PI * 2) * amplitude * Math.sin(t * Math.PI);
+          applySplitRatio(0.5 + offset);
+          if (t < 1) {
+            demoAnimId = requestAnimationFrame(step);
+          } else {
+            applySplitRatio(0.5);
+            demoAnimId = null;
+          }
+        };
+        demoAnimId = requestAnimationFrame(step);
+      };
+
+      if (startControlsHint && ENABLE_START_HINT && startControlsOkBtn) {
+        startControlsOkBtn.addEventListener('click', function() {
+          setTimeout(playSliderDemo, 200);
+        }, { once: true });
+      } else {
+        setTimeout(playSliderDemo, 500);
+      }
+
       compareHandleEl.addEventListener('touchstart', function(e) {
         if (e.cancelable) e.preventDefault();
       }, { passive: false });
@@ -520,11 +574,14 @@
       compareHandleEl.addEventListener('pointerdown', function(e) {
         e.stopPropagation();
         if (e.cancelable) e.preventDefault();
+        if (demoAnimId) {
+          cancelAnimationFrame(demoAnimId);
+          demoAnimId = null;
+        }
         draggingSlider = true;
         compareSliderEl.classList.remove('is-pulsing');
         compareSliderEl.classList.add('is-dragging');
         compareHandleEl.setPointerCapture(e.pointerId);
-        hideCompareHint();
       });
       compareHandleEl.addEventListener('pointermove', function(e) {
         if (!draggingSlider) return;
